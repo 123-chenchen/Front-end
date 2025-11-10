@@ -6,7 +6,7 @@ export default function Profile() {
   const { id } = useParams();
   return (
     <Box sx={{ p: 3, mt: 8 }}>
-      <Typography variant="h5">Profile ID: {id}</Typography>
+      <Typography variant="h5">Profile: {id}</Typography>
     </Box>
   );
 }
