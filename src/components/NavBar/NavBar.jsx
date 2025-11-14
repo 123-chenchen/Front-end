@@ -5,16 +5,17 @@ import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import useStyles from './styles';
-import { Search, Sidebar } from '../index';
+import styles from './styles';
+import Search from '../Search/Search';
+import Sidebar from '../Sidebar/Sidebar';
 import { setUser } from '../../features/auth';
 import { fetchToken, createSessionId, moviesApi } from '../../utils/index';
 import { ColorModeContext } from '../../utils/ToggleColorMode';
 
 function Navbar() {
-  const { classes } = useStyles();
   const isMobile = useMediaQuery('(max-width:600px)');
   const theme = useTheme();
+  const sx = styles(theme);
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -44,14 +45,14 @@ function Navbar() {
   return (
     <>
       <AppBar position="fixed">
-        <Toolbar className={classes.toolbar}>
+        <Toolbar sx={sx.toolbar}>
           {isMobile && (
           <IconButton
             color="inherit"
             edge="start"
             style={{ outline: 'none' }}
             onClick={() => setMobileOpen((prevMobileOpen) => !prevMobileOpen)}
-            className={classes.menuButton}
+            sx={sx.menuButton}
           >
             <Menu />
           </IconButton>
@@ -74,7 +75,7 @@ function Navbar() {
                 color="inherit"
                 component={Link}
                 to={`/profile/${user.id}`}
-                className={classes.linkButton}
+                sx={sx.linkButton}
               >
                 {!isMobile && <>My Movies &nbsp;</>}
                 <Avatar
@@ -89,20 +90,20 @@ function Navbar() {
         </Toolbar>
       </AppBar>
       <div>
-        <nav className={classes.drawer}>
+        <nav style={sx.drawer}>
           {isMobile ? (
             <Drawer
               variant="temporary"
               anchor="left"
               open={mobileOpen}
               onClose={() => setMobileOpen((prevMobileOpen) => !prevMobileOpen)}
-              classes={{ paper: classes.drawerPaper }}
+              PaperProps={{ sx: sx.drawerPaper }}
               ModalProps={{ keepMounted: true }}
             >
               <Sidebar setMobileOpen={setMobileOpen} />
             </Drawer>
           ) : (
-            <Drawer classes={{ paper: classes.drawerPaper }} variant="permanent" open>
+            <Drawer PaperProps={{ sx: sx.drawerPaper }} variant="permanent" open>
               <Sidebar setMobileOpen={setMobileOpen} />
             </Drawer>
           )}
