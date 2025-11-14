@@ -1,14 +1,9 @@
-// Converted from makeStyles to a theme-aware sx object factory
 export default function styles(theme) {
   return {
     moviesContainer: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      overflow: 'auto',
-      flexWrap: 'wrap',
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: 'center',
-      },
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+  gap: theme.spacing(1),
     },
   };
 }
