@@ -20,9 +20,21 @@ function MovieInfo() {
   const { id } = useParams();
 
   const { data, error, isFetching } = useGetMovieQuery(id);
-  const { data: favoriteMovies } = useGetListQuery({ listName: 'favorite/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
-  const { data: watchlistMovies } = useGetListQuery({ listName: 'watchlist/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
-  const { data: recommendations } = useGetRecommendationsQuery({ list: '/recommendations', movieId: id });
+  const sessionId = localStorage.getItem('session_id');
+
+  // Only call account-specific list queries when we have a logged-in user and a session id.
+  const { data: favoriteMovies } = useGetListQuery(
+    { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
+    { skip: !user?.id || !sessionId },
+  );
+
+  const { data: watchlistMovies } = useGetListQuery(
+    { listName: 'watchlist/movies', accountId: user?.id, sessionId, page: 1 },
+    { skip: !user?.id || !sessionId },
+  );
+
+  // TMDB service expects { movie_id, list } — ensure we pass the correct keys.
+  const { data: recommendations } = useGetRecommendationsQuery({ movie_id: id, list: 'recommendations' });
 
   const [open, setOpen] = useState(false);
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
@@ -82,16 +94,16 @@ function MovieInfo() {
       </Grid>
       <Grid item container direction="column" lg={7}>
         <Typography variant="h3" align="center" gutterBottom>
-          {data?.title} ({data.release_date.split('-')[0]})
+          {data?.title} ({(data?.release_date || '').split('-')[0]})
         </Typography>
         <Typography variant="h5" align="center" gutterBottom>
           {data?.tagline}
         </Typography>
         <Grid item sx={sx.containerSpaceAround}>
           <Box display="flex" align="center">
-            <Rating readOnly value={data.vote_average / 2} />
+            <Rating readOnly value={(data?.vote_average ?? 0) / 2} />
             <Typography gutterBottom variant="subtitle1" style={{ marginLeft: '10px' }}>
-              {data?.vote_average} / 10
+              {data?.vote_average ?? 'N/A'} / 10
             </Typography>
           </Box>
           <Typography gutterBottom variant="h6" align="center">{data?.runtime}min</Typography>
@@ -108,8 +120,7 @@ function MovieInfo() {
         <Typography style={{ marginBottom: '2rem' }}>{data?.overview}</Typography>
         <Typography variant="h5" gutterBottom>Top Cast</Typography>
         <Grid item container spacing={2}>
-          {data && data?.credits?.cast?.map((character, i) => (
-            character.profile_path && (
+          {data?.credits?.cast?.filter((c) => c.profile_path).slice(0, 6).map((character, i) => (
             <Grid key={i} item xs={4} md={2} component={Link} to={`/actors/${character.id}`} style={{ textDecoration: 'none' }}>
               <img
                 style={sx.castImage}
@@ -118,11 +129,10 @@ function MovieInfo() {
               />
               <Typography color="textPrimary" align="center">{character?.name}</Typography>
               <Typography color="textSecondary" align="center">
-                {character.character.split('/')[0]}
+                {character?.character ? character.character.split('/')[0] : ''}
               </Typography>
             </Grid>
-            )
-          )).slice(0, 6)}
+          ))}
         </Grid>
         <Grid item container style={{ marginTop: '2rem' }}>
           <div style={sx.buttonContainer}>
@@ -159,12 +169,15 @@ function MovieInfo() {
           ? <MovieList movies={recommendations} numberOfMovies={12} />
           : <Box>Sorry, nothing was found.</Box>}
       </Box>
-      <Modal
-        closeAfterTransition
-        open={open}
-        onClose={() => setOpen(false)}
-      >
-        {data?.videos?.results?.length > 0 && (
+      {/* Only render Modal when there is at least one video result. Passing a boolean as
+          a child to MUI Modal can cause internal errors (it expects a valid React node).
+          This ensures Modal always receives a real element or is not rendered. */}
+      {data?.videos?.results?.length > 0 && (
+        <Modal
+          closeAfterTransition
+          open={open}
+          onClose={() => setOpen(false)}
+        >
           <div style={sx.modal}>
             <iframe
               autoPlay
@@ -175,8 +188,8 @@ function MovieInfo() {
               allow="autoplay"
             />
           </div>
-        )}
-      </Modal>
+        </Modal>
+      )}
     </Grid>
   );
 }

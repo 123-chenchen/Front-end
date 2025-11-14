@@ -8,8 +8,17 @@ import RatedCards from '../RatedCards/RatedCards';
 
 function Profile() {
   const { user } = useSelector((state) => state.user);
-  const { data: favoriteMovies, refetch: refetchFavorites } = useGetListQuery({ listName: 'favorite/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
-  const { data: watchlistMovies, refetch: refetchWatchlisted } = useGetListQuery({ listName: 'watchlist/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
+  const sessionId = localStorage.getItem('session_id');
+
+  const { data: favoriteMovies, refetch: refetchFavorites } = useGetListQuery(
+    { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
+    { skip: !user?.id || !sessionId },
+  );
+
+  const { data: watchlistMovies, refetch: refetchWatchlisted } = useGetListQuery(
+    { listName: 'watchlist/movies', accountId: user?.id, sessionId, page: 1 },
+    { skip: !user?.id || !sessionId },
+  );
 
   useEffect(() => {
     refetchFavorites();

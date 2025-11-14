@@ -27,20 +27,32 @@ function Navbar() {
 
   useEffect(() => {
     const logInUser = async () => {
-      if (token) {
-        if (sessionIdFromLocalStorage) {
-          const { data: userData } = await moviesApi.get(`/account?session_id=${sessionIdFromLocalStorage}`);
-          dispatch(setUser(userData));
-        } else {
-          const sessionId = await createSessionId();
-          const { data: userData } = await moviesApi.get(`/account?session_id=${sessionId}`);
-          dispatch(setUser(userData));
+      if (!token) return;
+
+      try {
+        // Prefer session id from localStorage, otherwise create one
+        let sessionId = sessionIdFromLocalStorage;
+
+        if (!sessionId) {
+          sessionId = await createSessionId();
         }
+
+        if (!sessionId) {
+          // eslint-disable-next-line no-console
+          console.warn('No valid session_id available. Ensure the request_token was approved on TMDB before creating a session.');
+          return;
+        }
+
+        const { data: userData } = await moviesApi.get(`/account?session_id=${sessionId}`);
+        dispatch(setUser(userData));
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Failed fetching account info:', error.response?.data ?? error.message);
       }
     };
 
     logInUser();
-  }, [token]);
+  }, [token, sessionIdFromLocalStorage, dispatch]);
 
   return (
     <>

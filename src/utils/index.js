@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+// Ensure a developer-friendly message if the API key is missing at runtime.
+if (!process.env.REACT_APP_TMDB_KEY) {
+  // eslint-disable-next-line no-console
+  console.error('Missing REACT_APP_TMDB_KEY — add your TMDB API key to .env.local and restart the dev server.');
+}
+
 export const moviesApi = axios.create({
   baseURL: 'https://api.themoviedb.org/3',
   params: {
@@ -18,23 +24,35 @@ export const fetchToken = async () => {
       window.location.href = `https://www.themoviedb.org/authenticate/${token}?redirect_to=${window.location.origin}/approved`;
     }
   } catch (error) {
-    console.log('Sorry, your token could not be created.');
+    // Log TMDB's response body when available to diagnose 401s and similar errors.
+    // eslint-disable-next-line no-console
+    console.error('fetchToken error:', error.response?.data ?? error.message);
   }
 };
 
 export const createSessionId = async () => {
   const token = localStorage.getItem('request_token');
 
-  if (token) {
-    try {
-      const { data: { session_id } } = await moviesApi.post('authentication/session/new', {
-        request_token: token,
-      });
-      localStorage.setItem('session_id', session_id);
+  if (!token) return null;
 
+  try {
+    const { data } = await moviesApi.post('authentication/session/new', {
+      request_token: token,
+    });
+
+    if (data && data.success) {
+      const { session_id } = data;
+      localStorage.setItem('session_id', session_id);
       return session_id;
-    } catch (error) {
-      console.log(error);
     }
+
+    // Log response if success flag is false so the developer can see why the session creation failed.
+    // eslint-disable-next-line no-console
+    console.error('createSessionId failed:', data);
+    return null;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('createSessionId error:', error.response?.data ?? error.message);
+    return null;
   }
 };
