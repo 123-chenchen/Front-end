@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AppBar, IconButton, Toolbar, Drawer, Button, Avatar, useMediaQuery } from '@mui/material';
+import {
+  AppBar,
+  IconButton,
+  Toolbar,
+  Drawer,
+  Button,
+  Avatar,
+  useMediaQuery,
+  Box,
+} from '@mui/material';
 import { Menu, AccountCircle, Brightness4, Brightness7 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
@@ -30,7 +39,6 @@ function Navbar() {
       if (!token) return;
 
       try {
-        // Prefer session id from localStorage, otherwise create one
         let sessionId = sessionIdFromLocalStorage;
 
         if (!sessionId) {
@@ -38,15 +46,15 @@ function Navbar() {
         }
 
         if (!sessionId) {
-          // eslint-disable-next-line no-console
-          console.warn('No valid session_id available. Ensure the request_token was approved on TMDB before creating a session.');
+          console.warn(
+            'No valid session_id available. Ensure the request_token was approved on TMDB before creating a session.',
+          );
           return;
         }
 
         const { data: userData } = await moviesApi.get(`/account?session_id=${sessionId}`);
         dispatch(setUser(userData));
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error('Failed fetching account info:', error.response?.data ?? error.message);
       }
     };
@@ -56,19 +64,21 @@ function Navbar() {
 
   return (
     <>
-      <AppBar position="fixed">
+      {/* AppBar được offset theo sidebar nhờ sx.appBar */}
+      <AppBar position="fixed" sx={sx.appBar}>
         <Toolbar sx={sx.toolbar}>
           {isMobile && (
-          <IconButton
-            color="inherit"
-            edge="start"
-            style={{ outline: 'none' }}
-            onClick={() => setMobileOpen((prevMobileOpen) => !prevMobileOpen)}
-            sx={sx.menuButton}
-          >
-            <Menu />
-          </IconButton>
+            <IconButton
+              color="inherit"
+              edge="start"
+              style={{ outline: 'none' }}
+              onClick={() => setMobileOpen((prevMobileOpen) => !prevMobileOpen)}
+              sx={sx.menuButton}
+            >
+              <Menu />
+            </IconButton>
           )}
+
           <IconButton
             color="inherit"
             sx={{ ml: 1 }}
@@ -76,7 +86,9 @@ function Navbar() {
           >
             {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
+
           {!isMobile && <Search />}
+
           <div>
             {!isAuthenticated ? (
               <Button color="inherit" onClick={fetchToken}>
@@ -98,29 +110,39 @@ function Navbar() {
               </Button>
             )}
           </div>
+
           {isMobile && <Search />}
         </Toolbar>
       </AppBar>
-      <div>
-        <nav style={sx.drawer}>
-          {isMobile ? (
-            <Drawer
-              variant="temporary"
-              anchor="left"
-              open={mobileOpen}
-              onClose={() => setMobileOpen((prevMobileOpen) => !prevMobileOpen)}
-              PaperProps={{ sx: sx.drawerPaper }}
-              ModalProps={{ keepMounted: true }}
-            >
-              <Sidebar setMobileOpen={setMobileOpen} />
-            </Drawer>
-          ) : (
-            <Drawer PaperProps={{ sx: sx.drawerPaper }} variant="permanent" open>
-              <Sidebar setMobileOpen={setMobileOpen} />
-            </Drawer>
-          )}
-        </nav>
-      </div>
+
+      <Box component="nav" sx={sx.drawer}>
+        {isMobile ? (
+          <Drawer
+            variant="temporary"
+            anchor="left"
+            open={mobileOpen}
+            onClose={() => setMobileOpen((prev) => !prev)}
+            slotProps={{
+              paper: {
+                sx: sx.drawerPaper,
+              },
+            }}
+            ModalProps={{ keepMounted: true }}
+          >
+            <Sidebar setMobileOpen={setMobileOpen} />
+          </Drawer>
+
+        ) : (
+          <Drawer
+            variant="permanent"
+            open
+            slotProps={{ paper: { sx: sx.drawerPaper,},}}
+          >
+            <Sidebar setMobileOpen={setMobileOpen} />
+          </Drawer>
+
+        )}
+      </Box>
     </>
   );
 }
