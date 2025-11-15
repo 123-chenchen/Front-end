@@ -2,8 +2,6 @@
 export default function styles(theme) {
   return {
     containerSpaceAround: {
-      display: 'flex',
-      justifyContent: 'space-around',
       margin: '10px 0 !important',
       [theme.breakpoints.down('sm')]: {
         flexDirection: 'column',
@@ -13,7 +11,7 @@ export default function styles(theme) {
     poster: {
       borderRadius: '20px',
       boxShadow: '0.5em 1em 1em rgb(64, 64, 70)',
-      width: '80%',
+      width: '50%',
       [theme.breakpoints.down('md')]: {
         margin: '0 auto',
         width: '50%',

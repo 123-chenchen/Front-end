@@ -4,7 +4,6 @@ export default function styles(theme) {
     featuredCardContainer: {
       marginBottom: '20px',
       display: 'flex',
-      justifyContent: '20px',
       height: '490px',
       textDecoration: 'none',
     },

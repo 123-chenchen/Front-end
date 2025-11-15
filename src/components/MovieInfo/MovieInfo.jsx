@@ -85,7 +85,7 @@ function MovieInfo() {
 
   return (
     <Grid container sx={sx.containerSpaceAround}>
-      <Grid item sm={12} lg={4} align="center">
+      <Grid item sm={12} lg={4} align="flex">
         <img
           src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
           style={sx.poster}

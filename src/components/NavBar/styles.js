@@ -13,7 +13,6 @@ export default function styles(theme) {
 
     // Thanh Toolbar bên trong AppBar
     toolbar: {
-      height: '80px',
       display: 'flex',
       justifyContent: 'space-between',
       padding: theme.spacing(0, 2),
