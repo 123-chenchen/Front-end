@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Typography, Button, ButtonGroup, Grid, Box, CircularProgress, Rating } from '@mui/material';
-import { Movie as MovieIcon, Theaters, Language, PlusOne, Favorite, FavoriteBorderOutlined, Remove, ArrowBack } from '@mui/icons-material';
+import {
+  Modal,
+  Typography,
+  Button,
+  ButtonGroup,
+  Grid,
+  Box,
+  CircularProgress,
+  Rating,
+} from '@mui/material';
+import {
+  Movie as MovieIcon,
+  Theaters,
+  Language,
+  PlusOne,
+  Favorite,
+  FavoriteBorderOutlined,
+  Remove,
+  ArrowBack,
+} from '@mui/icons-material';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -8,7 +26,11 @@ import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import styles from './styles';
 import MovieList from '../MovieList/MovieList';
-import { useGetMovieQuery, useGetRecommendationsQuery, useGetListQuery } from '../../services/TMDB';
+import {
+  useGetMovieQuery,
+  useGetRecommendationsQuery,
+  useGetListQuery,
+} from '../../services/TMDB';
 import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
 
@@ -22,7 +44,6 @@ function MovieInfo() {
   const { data, error, isFetching } = useGetMovieQuery(id);
   const sessionId = localStorage.getItem('session_id');
 
-  // Only call account-specific list queries when we have a logged-in user and a session id.
   const { data: favoriteMovies } = useGetListQuery(
     { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
     { skip: !user?.id || !sessionId },
@@ -33,37 +54,52 @@ function MovieInfo() {
     { skip: !user?.id || !sessionId },
   );
 
-  // TMDB service expects { movie_id, list } — ensure we pass the correct keys.
-  const { data: recommendations } = useGetRecommendationsQuery({ movie_id: id, list: 'recommendations' });
+  const { data: recommendations } = useGetRecommendationsQuery({
+    movie_id: id,
+    list: 'recommendations',
+  });
 
   const [open, setOpen] = useState(false);
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
   const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
 
   useEffect(() => {
-    setIsMovieFavorited(!!favoriteMovies?.results?.find((movie) => movie?.id === data?.id));
+    setIsMovieFavorited(
+      !!favoriteMovies?.results?.find((movie) => movie?.id === data?.id),
+    );
   }, [favoriteMovies, data]);
+
   useEffect(() => {
-    setIsMovieWatchlisted(!!watchlistMovies?.results?.find((movie) => movie?.id === data?.id));
+    setIsMovieWatchlisted(
+      !!watchlistMovies?.results?.find((movie) => movie?.id === data?.id),
+    );
   }, [watchlistMovies, data]);
 
   const addToFavorites = async () => {
-    await axios.post(`https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${localStorage.getItem('session_id')}`, {
-      media_type: 'movie',
-      media_id: id,
-      favorite: !isMovieFavorited,
-    });
-
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem('session_id')}`,
+      {
+        media_type: 'movie',
+        media_id: id,
+        favorite: !isMovieFavorited,
+      },
+    );
     setIsMovieFavorited((prev) => !prev);
   };
 
   const addToWatchList = async () => {
-    await axios.post(`https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${localStorage.getItem('session_id')}`, {
-      media_type: 'movie',
-      media_id: id,
-      watchlist: !isMovieWatchlisted,
-    });
-
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem('session_id')}`,
+      {
+        media_type: 'movie',
+        media_id: id,
+        watchlist: !isMovieWatchlisted,
+      },
+    );
     setIsMovieWatchlisted((prev) => !prev);
   };
 
@@ -84,94 +120,242 @@ function MovieInfo() {
   }
 
   return (
-    <Grid container sx={sx.containerSpaceAround}>
-      <Grid item sm={12} lg={4} align="flex">
-        <img
-          src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
-          style={sx.poster}
-          alt={data?.title}
-        />
-      </Grid>
-      <Grid item container direction="column" lg={7}>
-        <Typography variant="h3" align="center" gutterBottom>
-          {data?.title} ({(data?.release_date || '').split('-')[0]})
-        </Typography>
-        <Typography variant="h5" align="center" gutterBottom>
-          {data?.tagline}
-        </Typography>
-        <Grid item sx={sx.containerSpaceAround}>
-          <Box display="flex" align="center">
-            <Rating readOnly value={(data?.vote_average ?? 0) / 2} />
-            <Typography gutterBottom variant="subtitle1" style={{ marginLeft: '10px' }}>
-              {data?.vote_average ?? 'N/A'} / 10
+    <>
+      {/* HÀNG 1: POSTER + THÔNG TIN PHIM */}
+      <Grid
+        container
+        spacing={4}
+        sx={{
+          mt: 4,
+          alignItems: 'flex-start',
+          flexDirection: { xs: 'column', md: 'row' }, // mobile: dọc, desktop: ngang
+        }}
+      >
+        {/* Cột trái: poster (rộng cố định) */}
+        <Grid
+          item
+          xs={12}
+          sx={{
+            flex: { md: '0 0 320px' }, // ~320px cột trái
+            display: 'flex',
+            justifyContent: { xs: 'center', md: 'flex-start' },
+          }}
+        >
+          <img
+            src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
+            style={sx.poster}
+            alt={data?.title}
+          />
+        </Grid>
+
+        {/* Cột phải: thông tin phim (ăn hết phần còn lại) */}
+        <Grid
+          item
+          xs={12}
+          sx={{
+            flex: { md: '1 1 auto' },
+          }}
+        >
+          <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+            <Typography variant="h3" gutterBottom>
+              {data?.title} ({(data?.release_date || '').split('-')[0]})
             </Typography>
-          </Box>
-          <Typography gutterBottom variant="h6" align="center">{data?.runtime}min</Typography>
-        </Grid>
-        <Grid item sx={sx.genresContainer}>
-          {data?.genres?.map((genre) => (
-            <Link style={sx.links} key={genre.name} to="/" onClick={() => dispatch(selectGenreOrCategory(genre.id))}>
-              <img src={genreIcons[genre.name.toLowerCase()]} style={sx.genreImage} height={30} />
-              <Typography color="textPrimary" variant="subtitle1">{genre?.name}</Typography>
-            </Link>
-          ))}
-        </Grid>
-        <Typography variant="h5" gutterBottom style={{ marginTop: '20px' }}>Overview</Typography>
-        <Typography style={{ marginBottom: '2rem' }}>{data?.overview}</Typography>
-        <Typography variant="h5" gutterBottom>Top Cast</Typography>
-        <Grid item container spacing={2}>
-          {data?.credits?.cast?.filter((c) => c.profile_path).slice(0, 6).map((character, i) => (
-            <Grid key={i} item xs={4} md={2} component={Link} to={`/actors/${character.id}`} style={{ textDecoration: 'none' }}>
-              <img
-                style={sx.castImage}
-                src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
-                alt={character.name}
-              />
-              <Typography color="textPrimary" align="center">{character?.name}</Typography>
-              <Typography color="textSecondary" align="center">
-                {character?.character ? character.character.split('/')[0] : ''}
-              </Typography>
-            </Grid>
-          ))}
-        </Grid>
-        <Grid item container style={{ marginTop: '2rem' }}>
-          <div style={sx.buttonContainer}>
-            <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
-              <ButtonGroup size="small" variant="outlined">
-                <Button target="_blank" rel="noopener noreferrer" href={data?.homepage} endIcon={<Language />}>Website</Button>
-                <Button target="_blank" rel="noopener noreferrer" href={`https://www.imdb.com/title/${data?.imdb_id}`} endIcon={<MovieIcon />}>IMDB</Button>
-                <Button onClick={() => setOpen(true)} href="#" endIcon={<Theaters />}>Trailer</Button>
-              </ButtonGroup>
-            </Grid>
-            <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
-              <ButtonGroup size="small" variant="outlined">
-                <Button onClick={addToFavorites} endIcon={isMovieFavorited ? <FavoriteBorderOutlined /> : <Favorite />}>
-                  {isMovieFavorited ? 'Unfavorite' : 'Favorite'}
-                </Button>
-                <Button onClick={addToWatchList} endIcon={isMovieWatchlisted ? <Remove /> : <PlusOne />}>
-                  Watchlist
-                </Button>
-                <Button endIcon={<ArrowBack />} sx={{ borderColor: 'primary.main' }}>
-                  <Typography variant="subtitle2" component={Link} to="/" color="inherit" sx={{ textDecoration: 'none' }}>
-                    Back
+
+            <Typography variant="h5" gutterBottom>
+              {data?.tagline}
+            </Typography>
+
+            {/* Rating + runtime */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: { xs: 'center', md: 'flex-start' },
+                alignItems: 'center',
+                gap: 2,
+                mt: 2,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Rating readOnly value={(data?.vote_average ?? 0) / 2} />
+                <Typography variant="subtitle1" sx={{ ml: 1.25 }}>
+                  {data?.vote_average ?? 'N/A'} / 10
+                </Typography>
+              </Box>
+
+              <Typography variant="h6">{data?.runtime} min</Typography>
+            </Box>
+
+            {/* Genres */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: { xs: 'center', md: 'flex-start' },
+                gap: 2,
+                mt: 2,
+              }}
+            >
+              {data?.genres?.map((genre) => (
+                <Link
+                  style={sx.links}
+                  key={genre.name}
+                  to="/"
+                  onClick={() => dispatch(selectGenreOrCategory(genre.id))}
+                >
+                  <img
+                    src={genreIcons[genre.name.toLowerCase()]}
+                    style={sx.genreImage}
+                    height={30}
+                    alt={genre.name}
+                  />
+                  <Typography color="textPrimary" variant="subtitle1">
+                    {genre?.name}
                   </Typography>
-                </Button>
-              </ButtonGroup>
+                </Link>
+              ))}
+            </Box>
+
+            {/* Overview */}
+            <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>
+              Overview
+            </Typography>
+            <Typography sx={{ mb: 4 }}>{data?.overview}</Typography>
+
+            {/* Buttons */}
+            <Grid item container sx={{ mt: 2 }}>
+              <div style={sx.buttonContainer}>
+                <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
+                  <ButtonGroup size="small" variant="outlined">
+                    <Button
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={data?.homepage}
+                      endIcon={<Language />}
+                    >
+                      Website
+                    </Button>
+                    <Button
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://www.imdb.com/title/${data?.imdb_id}`}
+                      endIcon={<MovieIcon />}
+                    >
+                      IMDB
+                    </Button>
+                    <Button
+                      onClick={() => setOpen(true)}
+                      href="#"
+                      endIcon={<Theaters />}
+                    >
+                      Trailer
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
+                  <ButtonGroup size="small" variant="outlined">
+                    <Button
+                      onClick={addToFavorites}
+                      endIcon={
+                        isMovieFavorited ? (
+                          <FavoriteBorderOutlined />
+                        ) : (
+                          <Favorite />
+                        )
+                      }
+                    >
+                      {isMovieFavorited ? 'Unfavorite' : 'Favorite'}
+                    </Button>
+                    <Button
+                      onClick={addToWatchList}
+                      endIcon={
+                        isMovieWatchlisted ? <Remove /> : <PlusOne />
+                      }
+                    >
+                      Watchlist
+                    </Button>
+                    <Button
+                      endIcon={<ArrowBack />}
+                      sx={{ borderColor: 'primary.main' }}
+                    >
+                      <Typography
+                        variant="subtitle2"
+                        component={Link}
+                        to="/"
+                        color="inherit"
+                        sx={{ textDecoration: 'none' }}
+                      >
+                        Back
+                      </Typography>
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+              </div>
             </Grid>
-          </div>
+          </Box>
+        </Grid>
+
+
+        {/* HÀNG 2: Top Cast full width */}
+        <Grid item xs={12} sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Top Cast
+          </Typography>
+          <Grid container spacing={2}>
+            {data?.credits?.cast
+              ?.filter((c) => c.profile_path)
+              .slice(0, 6)
+              .map((character, i) => (
+                <Grid
+                  key={i}
+                  item
+                  xs={4}
+                  md={2}
+                  component={Link}
+                  to={`/actors/${character.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <img
+                    style={sx.castImage}
+                    src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
+                    alt={character.name}
+                  />
+                  <Typography
+                    color="textPrimary"
+                    align="center"
+                    noWrap
+                  >
+                    {character?.name}
+                  </Typography>
+                  <Typography
+                    color="textSecondary"
+                    align="center"
+                    noWrap
+                  >
+                    {character?.character
+                      ? character.character.split('/')[0]
+                      : ''}
+                  </Typography>
+                </Grid>
+              ))}
+          </Grid>
         </Grid>
       </Grid>
+
+      {/* Recommendations */}
       <Box marginTop="5rem" width="100%">
         <Typography variant="h3" gutterBottom align="center">
           You might also like
         </Typography>
-        {recommendations
-          ? <MovieList movies={recommendations} numberOfMovies={12} />
-          : <Box>Sorry, nothing was found.</Box>}
+        {recommendations ? (
+          <MovieList movies={recommendations} numberOfMovies={12} />
+        ) : (
+          <Box>Sorry, nothing was found.</Box>
+        )}
       </Box>
-      {/* Only render Modal when there is at least one video result. Passing a boolean as
-          a child to MUI Modal can cause internal errors (it expects a valid React node).
-          This ensures Modal always receives a real element or is not rendered. */}
+
+      {/* Trailer Modal */}
       {data?.videos?.results?.length > 0 && (
         <Modal
           closeAfterTransition
@@ -190,7 +374,7 @@ function MovieInfo() {
           </div>
         </Modal>
       )}
-    </Grid>
+    </>
   );
 }
 
