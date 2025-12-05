@@ -1,17 +1,21 @@
+// src/components/MovieList/MovieList.jsx
 import React from 'react';
 import { Grid } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
-import useStyles from './styles';
-import { Movie } from '../index';
+import Movie from '../Movie/Movie';
+import styles from './styles';
 
 function MovieList({ movies, numberOfMovies, excludeFirst }) {
-  const classes = useStyles();
-  const startFrom = excludeFirst ? 1 : 0;
+  const theme = useTheme();
+  const sx = styles(theme);
+
+  const startIndex = excludeFirst ? 1 : 0;
 
   return (
-    <Grid container className={classes.moviesContainer}>
-      {movies.results.slice(startFrom, numberOfMovies).map((movie, i) => (
-        <Movie key={i} movie={movie} i={i} />
+    <Grid container sx={sx.moviesContainer} spacing={2}>
+      {movies.results.slice(startIndex, numberOfMovies).map((movie, i) => (
+        <Movie key={movie.id} movie={movie} i={i} />
       ))}
     </Grid>
   );

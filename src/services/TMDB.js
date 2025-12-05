@@ -2,6 +2,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const tmdbApiKey = process.env.REACT_APP_TMDB_KEY;
 
+if (!tmdbApiKey) {
+  // eslint-disable-next-line no-console
+  console.error('Missing REACT_APP_TMDB_KEY — add your TMDB API key to .env.local and restart the dev server.');
+}
+
 export const tmdbApi = createApi({
   reducerPath: 'tmdbApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://api.themoviedb.org/3' }),

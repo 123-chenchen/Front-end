@@ -1,10 +1,20 @@
-import React from 'react';
-import { InputBase, Paper } from '@mui/material';
-
-export function Search() {
-  return (
-    <Paper component="form" sx={{ p: '2px 8px', display: 'flex', alignItems: 'center', width: 260 }}>
-      <InputBase sx={{ ml: 1, flex: 1 }} placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-    </Paper>
-  );
+// Converted from makeStyles to a theme-aware sx object factory
+export default function styles(theme) {
+  return {
+    searchContainer: {
+      [theme.breakpoints.down('sm')]: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+      },
+    },
+    input: {
+      color: theme.palette.mode === 'light' ? 'dark' : undefined,
+      filter: theme.palette.mode === 'light' ? 'invert(1)' : undefined,
+      [theme.breakpoints.down('sm')]: {
+        marginTop: '-10px',
+        marginBottom: '10px',
+      },
+    },
+  };
 }

@@ -1,39 +1,53 @@
-import { makeStyles } from 'tss-react/mui';
-
+// src/components/Navbar/styles.js
 const drawerWidth = 240;
 
-const useStyles = makeStyles()((theme) => ({
-  toolbar: {
-    height: '80px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginLeft: '240px',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      flexWrap: 'wrap',
+export default function styles(theme) {
+  return {
+    // AppBar chừa chỗ cho sidebar trên màn hình >= sm
+    appBar: {
+      [theme.breakpoints.up('sm')]: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+      },
     },
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
-  },
-  drawer: {
-    [theme.breakpoints.up('sm')]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  linkButton: {
-    '&:hover': {
-      color: 'white !important',
-      textDecoration: 'none',
-    },
-  },
-}));
 
-export default useStyles;
+    // Thanh Toolbar bên trong AppBar
+    toolbar: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      padding: theme.spacing(0, 2),
+      [theme.breakpoints.down('sm')]: {
+        flexWrap: 'wrap',
+      },
+    },
+
+    // Nút menu (chỉ hiện mobile)
+    menuButton: {
+      marginRight: theme.spacing(2),
+      [theme.breakpoints.up('sm')]: {
+        display: 'none',
+      },
+    },
+
+    // Vùng nav chứa Drawer (dùng cho layout)
+    drawer: {
+      [theme.breakpoints.up('sm')]: {
+        width: drawerWidth,
+        flexShrink: 0,
+      },
+    },
+
+    // Paper bên trong Drawer
+    drawerPaper: {
+      width: drawerWidth,
+    },
+
+    // Nút link (My Movies)
+    linkButton: {
+      '&:hover': {
+        color: 'white !important',
+        textDecoration: 'none',
+      },
+    },
+  };
+}

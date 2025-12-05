@@ -1,10 +1,42 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Typography, Grid, Grow, Tooltip, Rating } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-export default function Movie() {
+import { useTheme } from '@mui/material/styles';
+import styles from './styles';
+
+function Movie({ movie, i }) {
+  const theme = useTheme();
+  const sx = styles(theme);
+
   return (
-    <Box sx={{ p: 3, mt: 8 }}>
-      <Typography variant="h5">Home</Typography>
-    </Box>
+    <Grid
+      item
+      sx={sx.movie}
+    >
+      <Grow in key={i} timeout={(i + 1) * 250}>
+        <Link style={sx.links} to={`/movie/${movie.id}`}>
+          <img
+            src={
+              movie.poster_path
+                ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
+                : 'https://www.fillmurray.com/200/300'
+            }
+            alt={movie.title}
+            style={sx.image}
+          />
+          <Typography sx={sx.title} variant="h5">
+            {movie.title}
+          </Typography>
+          <Tooltip disableTouchListener title={`${movie.vote_average} / 10`}>
+            <div>
+              <Rating readOnly value={movie.vote_average / 2} precision={0.1} />
+            </div>
+          </Tooltip>
+        </Link>
+      </Grow>
+    </Grid>
   );
 }
+
+export default Movie;
