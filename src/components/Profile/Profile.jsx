@@ -31,21 +31,8 @@ function Profile() {
   };
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between">
-        <Typography variant="h4" gutterBottom>My Profile</Typography>
-        <Button color="inherit" onClick={logout}>
-          Logout &nbsp; <ExitToApp />
-        </Button>
-      </Box>
-      {!favoriteMovies?.results?.length && !watchlistMovies?.results?.length
-        ? <Typography variant="h5">Add favourite or watchlist same movies to see them here!</Typography>
-        : (
-          <Box>
-            <RatedCards title="Favorite Movies" movies={favoriteMovies} />
-            <RatedCards title="Watchlist" movies={watchlistMovies} />
-          </Box>
-        )}
+    <Box sx={{ p: 3, mt: 8 }}>
+      <Typography variant="h5">Profile: {id}</Typography>
     </Box>
   );
 }
