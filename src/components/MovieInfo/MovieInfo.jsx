@@ -26,6 +26,7 @@ import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import styles from './styles';
 import MovieList from '../MovieList/MovieList';
+import { MovieSEO } from '../../utils/SEO';
 import {
   useGetMovieQuery,
   useGetRecommendationsQuery,
@@ -121,6 +122,14 @@ function MovieInfo() {
 
   return (
     <>
+      {data?.title && (
+        <MovieSEO
+          title={data.title}
+          description={data?.overview || 'Movie details'}
+          image={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
+          movieId={id}
+        />
+      )}
       {/* HÀNG 1: POSTER + THÔNG TIN PHIM */}
       <Grid
         container

@@ -29,7 +29,7 @@ function Profile() {
       refetchFavorites();
       refetchWatchlisted();
     }
-  }, [user?.id, sessionId]);
+  }, [user?.id, sessionId, refetchFavorites, refetchWatchlisted]);
 
   // Logout -> clear localStorage
   const logout = () => {

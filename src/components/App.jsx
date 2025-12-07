@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 
 import styles from './styles';
 import useAlan from './Alan';
+import { DefaultSEO } from '../utils/SEO';
 
 import { Movies, Actors, MovieInfo, Navbar, Profile } from './index';
 
@@ -28,6 +29,7 @@ function App() {
   return (
     <Box sx={sx.root}>
       <CssBaseline />
+      <DefaultSEO />
 
       {/* Hide Navbar on certain pages */}
       {!hideLayout && <Navbar />}
@@ -41,9 +43,11 @@ function App() {
           <Route exact path="/approved" element={<Movies />} />
           <Route exact path="/movie/:id" element={<MovieInfo />} />
           <Route exact path="/actors/:id" element={<Actors />} />
+          <Route exact path="/actors/:name" element={<Actors />} />
           <Route exact path="/profile/:id" element={<Profile />} />
+          <Route exact path="/genres/:genre" element={<Movies />} />
 
-          {/* 2 new routes */}
+          {/* Recomovie routes */}
           <Route path="/recomovie-login" element={<RecomovieLogin />} />
           <Route path="/recomovie-profile/:id" element={<RecomovieProfile />} />
         </Routes>

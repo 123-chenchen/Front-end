@@ -42,7 +42,7 @@ function useAlan() {
         }
       },
     });
-  }, []);
+  }, [dispatch, navigate, setMode]);
 }
 
 export default useAlan;

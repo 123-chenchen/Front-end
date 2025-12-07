@@ -1,6 +1,6 @@
 // src/components/MovieList/MovieList.jsx
 import React from 'react';
-import { Grid, Grow } from '@mui/material';
+import { Grid } from '@mui/material';
 
 import { useTheme } from '@mui/material/styles';
 
