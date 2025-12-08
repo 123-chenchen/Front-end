@@ -20,8 +20,8 @@ import genreIcons from '../../assets/genres';
 
 // ⚠️ SỬA ĐƯỜNG DẪN LOGO THÀNH assets
 // Giả sử file nằm ở: src/assets/logo/Filmpire.jpg
-import redLogo from '../../assets/logo/Filmpire.jpg';
-import blueLogo from '../../assets/logo/Filmpire.jpg';
+import redLogo from '../../assets/logo/redlogo.svg';
+import blueLogo from '../../assets/logo/bluelogo.svg';
 // Nếu sau này bạn có 2 file khác nhau, chỉ cần đổi tên file và đường dẫn là được
 
 const categories = [
@@ -44,7 +44,7 @@ function Sidebar({ setMobileOpen }) {
     setMobileOpen(false);
   }, [genreIdOrCategoryName, setMobileOpen]);
 
-  const logo = theme.palette.mode === 'light' ? redLogo : blueLogo;
+  const logo = theme.palette.mode === 'light' ? blueLogo : redLogo;
 
   return (
     <>

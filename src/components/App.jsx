@@ -1,11 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { CssBaseline, Box } from '@mui/material';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 
 import styles from './styles';
-import useAlan from './Alan';
-import { DefaultSEO } from '../utils/SEO';
 
 import { Movies, Actors, MovieInfo, Navbar, Profile } from './index';
 
@@ -15,7 +13,6 @@ import RecomovieProfile from "../components/RecomovieProfile/RecomovieProfile";
 function App() {
   const theme = useTheme();
   const sx = styles(theme);
-  const alanBtnContainer = useRef();
 
   const location = useLocation();
 
@@ -24,12 +21,9 @@ function App() {
 
   const hideLayout = noLayoutRoutes.includes(location.pathname);
 
-  useAlan();
-
   return (
     <Box sx={sx.root}>
       <CssBaseline />
-      <DefaultSEO />
 
       {/* Hide Navbar on certain pages */}
       {!hideLayout && <Navbar />}
@@ -52,9 +46,6 @@ function App() {
           <Route path="/recomovie-profile/:id" element={<RecomovieProfile />} />
         </Routes>
       </Box>
-
-      {/* Hide Alan button too for clean login page */}
-      {!hideLayout && <div ref={alanBtnContainer} />}
     </Box>
   );
 }
