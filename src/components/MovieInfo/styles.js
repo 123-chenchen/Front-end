@@ -1,38 +1,41 @@
-// Converted from makeStyles to a theme-aware sx object factory
 export default function styles(theme) {
   return {
-    containerSpaceAround: {
-      margin: '10px 0 !important',
-      [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column',
-        flexWrap: 'wrap',
-      },
-    },
-    poster: {
-      borderRadius: '20px',
-      boxShadow: '0.5em 1em 1em rgb(64, 64, 70)',
-      width: '50%',
-      [theme.breakpoints.down('md')]: {
-        margin: '0 auto',
-        width: '50%',
-      },
-      [theme.breakpoints.down('sm')]: {
-        margin: '0 auto',
-        width: '100%',
-        height: '350px',
-        marginBottom: '30px',
-      },
-    },
+   poster: {
+  borderRadius: '20px',
+  boxShadow: '0.5em 1em 1em rgb(64, 64, 70)',
+  width: '70%',
+  maxWidth: '350px',
+  [theme.breakpoints.down('md')]: {
+    margin: '0 auto',
+    width: '60%',
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    height: '350px',
+    margin: '0 auto 30px auto',
+  },
+},
+
     genresContainer: {
-      margin: '10px 0',
       display: 'flex',
-      justifyContent: 'space-around',
       flexWrap: 'wrap',
+      justifyContent: 'flex-start',
+      gap: theme.spacing(2),
     },
+
     genreImage: {
       filter: theme.palette.mode === 'dark' ? 'invert(1)' : undefined,
       marginRight: '10px',
     },
+
+    castImage: {
+      width: '100%',
+      maxWidth: '7em',
+      height: '8em',
+      objectFit: 'cover',
+      borderRadius: '10px',
+    },
+
     links: {
       display: 'flex',
       justifyContent: 'center',
@@ -42,13 +45,7 @@ export default function styles(theme) {
         padding: '0.5rem 1rem',
       },
     },
-    castImage: {
-      width: '100%',
-      maxWidth: '7em',
-      height: '8em',
-      objectFit: 'cover',
-      borderRadius: '10px',
-    },
+
     buttonContainer: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -57,11 +54,13 @@ export default function styles(theme) {
         flexDirection: 'column',
       },
     },
+
     modal: {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
     },
+
     video: {
       width: '50%',
       height: '50%',

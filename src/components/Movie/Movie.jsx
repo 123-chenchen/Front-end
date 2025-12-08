@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Grid, Grow, Tooltip, Rating } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Typography, Grid, Grow, Tooltip, Rating, Link as MuiLink } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useTheme } from '@mui/material/styles';
 import styles from './styles';
@@ -15,13 +15,14 @@ function Movie({ movie, i }) {
       sx={sx.movie}
     >
       <Grow in key={i} timeout={(i + 1) * 250}>
-        <Link style={sx.links} to={`/movie/${movie.id}`}>
+        <MuiLink component={RouterLink} sx={sx.links} to={`/movie/${movie.id}`}>
           <img
             src={
               movie.poster_path
-                ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
+                ? `https://image.tmdb.org/t/p/w185/${movie.poster_path}`
                 : 'https://www.fillmurray.com/200/300'
             }
+            loading="lazy"
             alt={movie.title}
             style={sx.image}
           />
@@ -33,7 +34,7 @@ function Movie({ movie, i }) {
               <Rating readOnly value={movie.vote_average / 2} precision={0.1} />
             </div>
           </Tooltip>
-        </Link>
+        </MuiLink>
       </Grow>
     </Grid>
   );

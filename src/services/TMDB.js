@@ -4,65 +4,87 @@ const tmdbApiKey = process.env.REACT_APP_TMDB_KEY;
 
 if (!tmdbApiKey) {
   // eslint-disable-next-line no-console
-  console.error('Missing REACT_APP_TMDB_KEY — add your TMDB API key to .env.local and restart the dev server.');
+  console.error(
+    'Missing REACT_APP_TMDB_KEY — add your TMDB API key to .env.local and restart the dev server.'
+  );
 }
+
+// .NET backend base URL
+const backendBaseUrl = 'http://45.77.248.87:8081/api';
 
 export const tmdbApi = createApi({
   reducerPath: 'tmdbApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://api.themoviedb.org/3' }),
+  baseQuery: fetchBaseQuery({ baseUrl: backendBaseUrl }),
   endpoints: (builder) => ({
-
-    // Get Genres
+    // ---------- Genres ----------
     getGenres: builder.query({
-      query: () => `/genre/movie/list?api_key=${tmdbApiKey}`,
+      query: () => '/Genres',
     }),
 
-    // Get Movies by [Type]
+    // ---------- Movies list (popular / top_rated / upcoming / genre / search) ----------
     getMovies: builder.query({
       query: ({ genreIdOrCategoryName, page, searchQuery }) => {
-        // Get Movies by Search
+        const safePage = page || 1;
+
         if (searchQuery) {
-          return `/search/movie?query=${searchQuery}&page=${page}&api_key=${tmdbApiKey}`;
+          const encoded = encodeURIComponent(searchQuery);
+          return `/movies?search=${encoded}&page=${safePage}`;
         }
 
-        // Get Movies by Category
         if (genreIdOrCategoryName && typeof genreIdOrCategoryName === 'string') {
-          return `/movie/${genreIdOrCategoryName}?page=${page}&api_key=${tmdbApiKey}`;
+          return `/movies?category=${genreIdOrCategoryName}&page=${safePage}`;
         }
 
-        // Get Movies by Genre
         if (genreIdOrCategoryName && typeof genreIdOrCategoryName === 'number') {
-          return `discover/movie?with_genres=${genreIdOrCategoryName}&page=${page}&api_key=${tmdbApiKey}`;
+          return `/movies?genreId=${genreIdOrCategoryName}&page=${safePage}`;
         }
 
-        // Get popular movies by default
-        return `/movie/popular?page=${page}&api_key=${tmdbApiKey}`;
+        return `/movies?category=popular&page=${safePage}`;
       },
     }),
 
-    // Get Movie
+    // ---------- Single movie details ----------
     getMovie: builder.query({
-      query: (id) => `/movie/${id}?append_to_response=videos,credits&api_key=${tmdbApiKey}`,
+      query: (id) => `/movies/${id}`,
     }),
 
-    // Get Recommendations
+    // ---------- Recommendations (still direct TMDb for now) ----------
     getRecommendations: builder.query({
-      query: ({ movie_id, list }) => `/movie/${movie_id}/${list}?api_key=${tmdbApiKey}`,
+      query: ({ movie_id, list }) =>
+        `https://api.themoviedb.org/3/movie/${movie_id}/${list}?api_key=${tmdbApiKey}`,
     }),
 
-    // Get Actor
+    // ---------- Actor details via backend ----------
     getActor: builder.query({
-      query: (id) => `person/${id}?api_key=${tmdbApiKey}`,
+      query: (id) => `/TMDbActor/${id}`,
     }),
 
-    // Get Movies by Actor
+    // ---------- Movies by actor via backend ----------
     getMoviesByActorId: builder.query({
-      query: ({ id, page }) => `/discover/movie?with_cast=${id}&page=${page}&api_key=${tmdbApiKey}`,
+      query: ({ id, page }) => {
+        const safePage = page || 1;
+        return `/TMDbActor/${id}/movies?page=${safePage}`;
+      },
     }),
 
-    // Get User Specific Lists
+    // ---------- User specific lists via backend ----------
     getList: builder.query({
-      query: ({ listName, accountId, sessionId, page }) => `/account/${accountId}/${listName}?api_key=${tmdbApiKey}&session_id=${sessionId}&page=${page}`,
+      query: ({ listName, accountId, sessionId, page }) => {
+        const safePage = page || 1;
+
+        const params = new URLSearchParams({
+          listName,
+          page: safePage.toString(),
+        });
+
+        if (sessionId) {
+          params.append('sessionId', sessionId);
+        }
+
+        // -> /api/TMDbAccounts/{accountId}/list?listName=...&sessionId=...&page=...
+        return `https://api.themoviedb.org/3/account/${accountId}/${safeListName}` +
+           `?api_key=${tmdbApiKey}&session_id=${sessionId}&page=${safePage}`;
+      },
     }),
   }),
 });
