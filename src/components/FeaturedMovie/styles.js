@@ -12,6 +12,7 @@ export default function styles(theme) {
       display: 'flex',
       justifyContent: 'flex-end',
       flexDirection: 'column',
+  borderRadius: '20px',
     },
     cardRoot: {
       position: 'relative',

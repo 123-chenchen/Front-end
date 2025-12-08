@@ -122,23 +122,21 @@ function MovieInfo() {
   return (
     <>
       {/* HÀNG 1: POSTER + THÔNG TIN PHIM */}
-      <Grid
-        container
-        spacing={4}
+      <Box
         sx={{
-          mt: 4,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 4,
+          mt: 2.5,
           alignItems: 'flex-start',
-          flexDirection: { xs: 'column', md: 'row' }, // mobile: dọc, desktop: ngang
         }}
       >
-        {/* Cột trái: poster (rộng cố định) */}
-        <Grid
-          item
-          xs={12}
+        <Box
           sx={{
-            flex: { md: '0 0 320px' }, // ~320px cột trái
+            flex: { xs: '0 0 100%', md: '0 0 320px' },
             display: 'flex',
             justifyContent: { xs: 'center', md: 'flex-start' },
+            margin: { xs: '0 auto', md: '0' }, // Center on small screens
           }}
         >
           <img
@@ -146,17 +144,18 @@ function MovieInfo() {
             style={sx.poster}
             alt={data?.title}
           />
-        </Grid>
+        </Box>
 
-        {/* Cột phải: thông tin phim (ăn hết phần còn lại) */}
-        <Grid
-          item
-          xs={12}
+        <Box
           sx={{
-            flex: { md: '1 1 auto' },
+            flex: { xs: '0 0 100%', md: '1 1 auto' },
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: { xs: 'center', md: 'flex-start' }, // Center on small screens
+            margin: { xs: '0 auto', md: '0' }, // Center on small screens
           }}
         >
-          <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+          <Box sx={{ textAlign: { xs: 'center', md: 'center' } }}>
             <Typography variant="h3" gutterBottom>
               {data?.title} ({(data?.release_date || '').split('-')[0]})
             </Typography>
@@ -217,7 +216,7 @@ function MovieInfo() {
             </Box>
 
             {/* Overview */}
-            <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>
+            <Typography variant="h4" gutterBottom sx={{fontWeight: 'bold', mt: 3 }}> 
               Overview
             </Typography>
             <Typography sx={{ mb: 4 }}>{data?.overview}</Typography>
@@ -294,54 +293,86 @@ function MovieInfo() {
               </div>
             </Grid>
           </Box>
-        </Grid>
-
-
-        {/* HÀNG 2: Top Cast full width */}
-        <Grid item xs={12} sx={{ mt: 4 }}>
-          <Typography variant="h5" gutterBottom>
+        </Box>
+      </Box>
+ {/* HÀNG 2: Top Cast full width */}
+        <Box sx={{ width: '100%', mt: 2.5 }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Top Cast
           </Typography>
-          <Grid container spacing={2}>
-            {data?.credits?.cast
-              ?.filter((c) => c.profile_path)
-              .slice(0, 6)
-              .map((character, i) => (
-                <Grid
-                  key={i}
-                  item
-                  xs={4}
-                  md={2}
-                  component={Link}
-                  to={`/actors/${character.id}`}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <img
-                    style={sx.castImage}
-                    src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
-                    alt={character.name}
-                  />
-                  <Typography
-                    color="textPrimary"
-                    align="center"
-                    noWrap
-                  >
-                    {character?.name}
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    align="center"
-                    noWrap
-                  >
-                    {character?.character
-                      ? character.character.split('/')[0]
-                      : ''}
-                  </Typography>
-                </Grid>
-              ))}
-          </Grid>
-        </Grid>
+          <Grid container spacing={1}>
+  {data?.credits?.cast
+    ?.filter((c) => c.profile_path)
+    .slice(0, 6)
+    .map((character, i) => (
+      <Grid
+        key={i}
+        item
+        xs={4}
+        md={2}
+        component={Link}
+        to={`/actors/${character.id}`}
+        style={{ textDecoration: 'none' }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            transition: "0.3s",
+            cursor: "pointer",
+            height: "280px",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
+          }}
+        >
+          <img
+            src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
+            alt={character.name}
+            style={{
+              width: "80%",
+              height: "150px",
+              objectFit: "cover",
+              borderRadius: "12px",
+              flexShrink: 0,
+            }}
+          />
+
+          <Typography
+            color="textPrimary"
+            variant="subtitle1"
+            sx={{ 
+              mt: 1, 
+              fontWeight: 'bold',
+              wordWrap: 'break-word',
+              overflow: 'hidden',
+              width: '100%',
+              px: 1,
+            }}
+          >
+            {character?.name}
+          </Typography>
+
+          <Typography
+            color="textSecondary"
+            variant="body2"
+            sx={{
+              wordWrap: 'break-word',
+              overflow: 'hidden',
+              width: '100%',
+              px: 1,
+            }}
+          >
+            {character?.character ? character.character.split('/')[0] : ''}
+          </Typography>
+        </Box>
       </Grid>
+    ))}
+</Grid>
+      </Box>
+
 
       {/* Recommendations */}
       <Box marginTop="5rem" width="100%">
