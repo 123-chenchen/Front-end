@@ -17,7 +17,6 @@ import {
   Favorite,
   FavoriteBorderOutlined,
   Remove,
-  ArrowBack,
 } from '@mui/icons-material';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -182,7 +181,15 @@ function MovieInfo() {
                 </Typography>
               </Box>
 
-              <Typography variant="h6">{data?.runtime} min</Typography>
+             <Typography variant="body1">
+    {data?.runtime} min •{" "}
+    {new Date(data?.release_date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })}{" "}
+    • {data?.original_language?.toUpperCase()}
+  </Typography>
             </Box>
 
             {/* Genres */}
@@ -222,76 +229,90 @@ function MovieInfo() {
             <Typography sx={{ mb: 4 }}>{data?.overview}</Typography>
 
             {/* Buttons */}
-            <Grid item container sx={{ mt: 2 }}>
-              <div style={sx.buttonContainer}>
-                <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
-                  <ButtonGroup size="small" variant="outlined">
-                    <Button
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={data?.homepage}
-                      endIcon={<Language />}
-                    >
-                      Website
-                    </Button>
-                    <Button
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={`https://www.imdb.com/title/${data?.imdb_id}`}
-                      endIcon={<MovieIcon />}
-                    >
-                      IMDB
-                    </Button>
-                    <Button
-                      onClick={() => setOpen(true)}
-                      href="#"
-                      endIcon={<Theaters />}
-                    >
-                      Trailer
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
+            <Box  sx={{
+    mt: 4,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    gap: 3, // khoảng cách đều giữa các nút
+    flexWrap: "wrap", // mobile tự xuống hàng
+  }}>
 
-                <Grid item xs={12} sm={6} sx={sx.buttonContainer}>
-                  <ButtonGroup size="small" variant="outlined">
-                    <Button
-                      onClick={addToFavorites}
-                      endIcon={
-                        isMovieFavorited ? (
-                          <FavoriteBorderOutlined />
-                        ) : (
-                          <Favorite />
-                        )
-                      }
-                    >
-                      {isMovieFavorited ? 'Unfavorite' : 'Favorite'}
-                    </Button>
-                    <Button
-                      onClick={addToWatchList}
-                      endIcon={
-                        isMovieWatchlisted ? <Remove /> : <PlusOne />
-                      }
-                    >
-                      Watchlist
-                    </Button>
-                    <Button
-                      endIcon={<ArrowBack />}
-                      sx={{ borderColor: 'primary.main' }}
-                    >
-                      <Typography
-                        variant="subtitle2"
-                        component={Link}
-                        to="/"
-                        color="inherit"
-                        sx={{ textDecoration: 'none' }}
-                      >
-                        Back
-                      </Typography>
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
-              </div>
-            </Grid>
+  {/* HÀNG 1 - 3 NÚT */}
+  <Grid 
+    container 
+    spacing={2} 
+    sx={{ mb: 2, justifyContent: { xs: "center", md: "flex-start" } }}
+  >
+    {/* WEBSITE */}
+    <Grid item>
+      <Button
+        variant="outlined"
+        sx={{ borderRadius: "12px", px: 3 }}
+        target="_blank"
+        href={data?.homepage}
+      >
+        WEBSITE
+      </Button>
+    </Grid>
+
+    {/* IMDb */}
+    <Grid item>
+      <Button
+        variant="outlined"
+        sx={{ borderRadius: "12px", px: 3 }}
+        target="_blank"
+        href={`https://www.imdb.com/title/${data?.imdb_id}`}
+      >
+        IMDb
+      </Button>
+    </Grid>
+
+    {/* TRAILER */}
+    <Grid item>
+      <Button
+        variant="outlined"
+        sx={{ borderRadius: "12px", px: 3 }}
+        onClick={() => setOpen(true)}
+      >
+        TRAILER
+      </Button>
+    </Grid>
+  </Grid>
+
+  {/* HÀNG 2 - 2 NÚT */}
+  <Grid 
+    container 
+    spacing={2} 
+    sx={{
+      justifyContent: { xs: "center", md: "flex-start" }
+    }}
+  >
+    {/* FAVORITE */}
+    <Grid item>
+      <Button
+        variant="outlined"
+        sx={{ borderRadius: "12px", px: 3 }}
+        onClick={addToFavorites}
+      >
+        {isMovieFavorited ? "UNFAVORITE" : "FAVORITE"}
+      </Button>
+    </Grid>
+
+    {/* WATCHLIST */}
+    <Grid item>
+      <Button
+        variant="outlined"
+        sx={{ borderRadius: "12px", px: 3 }}
+        onClick={addToWatchList}
+      >
+        WATCHLIST {isMovieWatchlisted ? "-" : "+1"}
+      </Button>
+    </Grid>
+  </Grid>
+
+</Box>
+
           </Box>
         </Box>
       </Box>
@@ -316,13 +337,10 @@ function MovieInfo() {
       >
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            transition: "0.3s",
-            cursor: "pointer",
-            height: "280px",
+              width: "120px",        // chiều rộng cố định
+      height: "260px",       // chiều cao cố định
+      display: "flex",
+      flexDirection: "column",
             "&:hover": {
               transform: "scale(1.05)",
             },
