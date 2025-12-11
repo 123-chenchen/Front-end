@@ -17,7 +17,7 @@ export default function RecomovieLogin() {
   // Fetch data from POST Account/Login
   const handleSubmit = async () => {
     try {
-      const response = await fetch("https://localhost:7013/api/Account/Login", {
+      const response = await fetch("http://45.77.248.87:8081/api/Account/Login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

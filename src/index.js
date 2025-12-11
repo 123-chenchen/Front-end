@@ -9,11 +9,11 @@ import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
-    <ToggleColorMode>
+  <ToggleColorMode>
+    <Provider store={store}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </ToggleColorMode>
-  </Provider>,
+    </Provider>
+  </ToggleColorMode>
 );

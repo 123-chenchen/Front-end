@@ -2,7 +2,8 @@
 export default function styles() {
   return {
     image: {
-      maxWidth: '90%',
+      width: '100%',
+      maxWidth: '350px',
       borderRadius: '20px',
       objectFit: 'cover',
       boxShadow: '0.5em 0.5em 1em',
@@ -10,7 +11,9 @@ export default function styles() {
     btns: {
       marginTop: '2rem',
       display: 'flex',
-      justifyContent: 'space-around',
+      gap: 2,
+      justifyContent: { xs: 'center', md: 'flex-start' },
+      flexWrap: 'wrap',
     },
   };
 }

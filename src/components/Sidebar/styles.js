@@ -3,11 +3,16 @@ export default function styles(theme) {
     imageLink: {
       display: 'flex',
       justifyContent: 'center',
-      padding: '10% 0',
+      alignItems: 'center',
+  
     },
     image: {
-      width: '70%',
+      width: '100%',
+      height: 'auto',
+      objectFit: 'contain',
+      display: 'block',
     },
+
     links: {
       color: theme.palette.text.primary,
       textDecoration: 'none',

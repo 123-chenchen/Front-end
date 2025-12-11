@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, CircularProgress, useMediaQuery, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -26,8 +26,6 @@ function Movies() {
 
   const theme = useTheme();
   const sx = styles(theme);
-
-  const lg = useMediaQuery((themeMUI) => themeMUI.breakpoints.only('lg'));
 
   // ⭐ Xử lý dữ liệu mỗi khi gọi API xong
   useEffect(() => {

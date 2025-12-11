@@ -44,7 +44,11 @@ function Profile() {
       refetchFavorites();
       refetchWatchlisted();
     }
+<<<<<<< HEAD
   }, [shouldSkip, refetchFavorites, refetchWatchlisted]);
+=======
+  }, [user?.id, sessionId, refetchFavorites, refetchWatchlisted]);
+>>>>>>> origin/dev
 
   // Logout -> clear localStorage
   const logout = () => {
@@ -54,6 +58,7 @@ function Profile() {
 
   // Logout + Empty status of Favorites and Watchlists
   return (
+<<<<<<< HEAD
     <Box sx={{ p: 3, mt: 8 }}>
       <Box
         sx={{
@@ -100,6 +105,24 @@ function Profile() {
           <RatedCards movies={watchlistMovies.results} title="Watchlist" />
         </Box>
       )}
+=======
+    <Box>
+      <Box display="flex" justifyContent="space-between">
+        <Typography variant="h4" gutterBottom>My Profile</Typography>
+        <Button color="inherit" onClick={logout}>
+          Logout &nbsp; <ExitToApp />
+        </Button>
+      </Box>
+      
+      {!favoriteMovies?.results?.length && !watchlistMovies?.results?.length
+        ? <Typography variant="h5">Add favourite or watchlist same movies to see them here!</Typography>
+        : (
+          <Box>
+            <RatedCards title="Favorite Movies" movies={favoriteMovies} />
+            <RatedCards title="Watchlist" movies={watchlistMovies} />
+          </Box>
+        )}
+>>>>>>> origin/dev
     </Box>
   );
 }

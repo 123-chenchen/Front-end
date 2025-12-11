@@ -21,7 +21,6 @@ function Navbar() {
 
   // Constant block for Authentication
   const dispatch = useDispatch();
-  const [forceUpdate, setForceUpdate] = useState(0);
   const token = localStorage.getItem('request_token');
   const sessionIdFromLocalStorage = localStorage.getItem('session_id');
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -41,10 +40,10 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Add listener for recomvie login
+  // Add listener for recomovie login
   useEffect(() => {
   const handleStorageUpdate = () => {
-    setForceUpdate((v) => v + 1); // force Navbar to re-render (re-render to catch Recomovie Login)
+    // Component will naturally re-render when localStorage/auth state changes
   };
 
   window.addEventListener("storage-update", handleStorageUpdate);

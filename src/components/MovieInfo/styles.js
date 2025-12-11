@@ -3,7 +3,7 @@ export default function styles(theme) {
    poster: {
   borderRadius: '20px',
   boxShadow: '0.5em 1em 1em rgb(64, 64, 70)',
-  width: '70%',
+  width: '80%',
   maxWidth: '350px',
   [theme.breakpoints.down('md')]: {
     margin: '0 auto',
@@ -20,7 +20,7 @@ export default function styles(theme) {
       display: 'flex',
       flexWrap: 'wrap',
       justifyContent: 'flex-start',
-      gap: theme.spacing(2),
+      gap: theme.spacing(4),
     },
 
     genreImage: {

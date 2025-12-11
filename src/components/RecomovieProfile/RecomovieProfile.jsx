@@ -1,12 +1,10 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { ExitToApp } from "@mui/icons-material";
 import { Box, Button, Typography, Avatar } from "@mui/material";
 
   // Load recomovie user
 export default function RecomovieProfile() {
   const storedUser = JSON.parse(localStorage.getItem("recomovie_user"));
-  const { id } = useParams();
 
   // Logout -> clear token and user fetch from POST Account/Login
   const logout = () => {
