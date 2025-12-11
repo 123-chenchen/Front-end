@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import MovieList from '../MovieList/MovieList';
-import FeaturedMovie from '../FeaturedMovie/FeaturedMovie';
+import { MovieList,FeaturedMovie} from '../index';
 import { useGetMoviesQuery } from '../../services/TMDB';
 import styles from './styles';
 
@@ -27,24 +26,19 @@ function Movies() {
   const theme = useTheme();
   const sx = styles(theme);
 
-  // ⭐ Xử lý dữ liệu mỗi khi gọi API xong
   useEffect(() => {
     if (!data?.results?.length) return;
 
     if (page === 1) {
-      // Trang đầu: tách 1 phim làm featured, còn lại cho list
       const [first, ...rest] = data.results;
       setFeaturedMovie(first);
       setMovies(rest);
     } else {
-      // Các trang sau: chỉ nối thêm vào list
       setMovies((prev) => [...prev, ...data.results]);
     }
   }, [data, page]);
 
-  if (error) return 'An error has occurred.';
 
-  // ⭐ Loading lần đầu (chưa có featured)
   if (isFetching && page === 1 && !featuredMovie) {
     return (
       <Box sx={sx.loadingContainer}>
@@ -53,7 +47,6 @@ function Movies() {
     );
   }
 
-  // ⭐ Nếu tìm không ra phim
   if (!isFetching && !featuredMovie && !movies.length) {
     return (
       <Box sx={sx.noResultsContainer}>
@@ -67,11 +60,9 @@ function Movies() {
   }
 
   return (
-    <Box sx={sx.root}>
-      {/* ẢNH TO: luôn tồn tại, không phụ thuộc page */}
+    <Box >
       {featuredMovie && <FeaturedMovie movie={featuredMovie} />}
 
-      {/* List phim, dùng infinite scroll */}
       <InfiniteScroll
         dataLength={movies.length}
         next={() => setPage((prev) => prev + 1)}
@@ -83,10 +74,7 @@ function Movies() {
         }
         style={{ overflow: 'hidden' }}
       >
-        <MovieList
-          movies={{ results: movies }}
-          excludeFirst={false} // đã tách featured rồi
-        />
+        <MovieList  movies={{ results: movies }}/>
       </InfiniteScroll>
     </Box>
   );

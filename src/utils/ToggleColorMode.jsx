@@ -4,7 +4,7 @@ import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 export default function ToggleColorModeProvider({ children }) {
-  // Lấy theme từ localStorage đúng cách
+
   const [mode, setMode] = useState(() => {
     const saved = localStorage.getItem("theme_mode");
     return saved === "dark" ? "dark" : "light";
@@ -23,15 +23,18 @@ export default function ToggleColorModeProvider({ children }) {
     []
   );
 
-  // ⚠️ Đây là phần QUAN TRỌNG NHẤT
-  // Theme không được tạo lại nếu mode không đổi!
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: { mode },
-      }),
-    [mode]
-  );
+
+ const theme = useMemo(
+  () =>
+    createTheme({
+      palette: { mode, },
+      typography: {
+        fontFamily: "'Inder', sans-serif",
+      },
+    }),
+  [mode]
+);
+
 
   return (
     <ColorModeContext.Provider value={colorMode}>

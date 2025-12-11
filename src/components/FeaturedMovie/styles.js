@@ -1,37 +1,34 @@
-// Converted from makeStyles to a theme-aware sx object factory
 export default function styles(theme) {
   return {
-    featuredCardContainer: {
+    card: {
       marginBottom: '20px',
       display: 'flex',
-      height: '490px',
-      textDecoration: 'none',
-    },
-    card: {
+      height: '500px',
       width: '100%',
-      display: 'flex',
-      justifyContent: 'flex-end',
       flexDirection: 'column',
-  borderRadius: '20px',
-    },
-    cardRoot: {
+      borderRadius: '20px',
       position: 'relative',
     },
     cardMedia: {
       position: 'absolute',
-      height: '100%',
+      height: '600px',
       width: '100%',
+      
+    },
+    cardContentWrapper: {
+      position: "absolute",
+      padding: "20px",
+      width: "100%",
+      height: "100%",
+      display: 'flex',
+      alignItems: 'flex-end',
+      background: `
+        linear-gradient(to right, rgba(0,0,0,0.65), rgba(0,0,0,0)),
+        linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0))
+      `,
     },
     cardContent: {
-      color: '#fff',
-      width: '40%',
-      [theme.breakpoints.down('sm')]: {
-        width: '40%',
-      },
-    },
-    cardContentRoot: {
-      position: 'relative',
-      backgroundColor: 'transparent', 
+      width: '50%',
     },
   };
 }
