@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
@@ -27,7 +27,7 @@ export default function ToggleColorModeProvider({ children }) {
  const theme = useMemo(
   () =>
     createTheme({
-      palette: { mode, },
+      palette: { mode, secondary: {main: '#b71c1c'}},
       typography: {
         fontFamily: "'Inder', sans-serif",
       },

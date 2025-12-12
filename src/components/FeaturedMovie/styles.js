@@ -29,6 +29,7 @@ export default function styles(theme) {
     },
     cardContent: {
       width: '50%',
+      color: theme.palette.common.white,
     },
   };
 }

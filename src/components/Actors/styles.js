@@ -1,19 +1,20 @@
-// Converted from makeStyles to a theme-aware sx object factory
-export default function styles() {
+export default function styles(theme) {
   return {
     image: {
-      width: '100%',
-      maxWidth: '350px',
+      display: 'flex',
+      maxWidth: '240px',
+      maxHeight: '360px',
       borderRadius: '20px',
-      objectFit: 'cover',
       boxShadow: '0.5em 0.5em 1em',
     },
-    btns: {
-      marginTop: '2rem',
+    layout: {
       display: 'flex',
-      gap: 2,
-      justifyContent: { xs: 'center', md: 'flex-start' },
-      flexWrap: 'wrap',
+      gap: 6,
     },
-  };
+    button: {
+      bgcolor: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
+      borderRadius: '40px',
+      my: 1.5,
+    }
+  }
 }

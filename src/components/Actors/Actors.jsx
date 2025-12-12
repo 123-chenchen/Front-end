@@ -1,12 +1,9 @@
-import React from 'react';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
-
-
 import { useTheme } from '@mui/material/styles';
 import styles from './styles';
 import { useGetActorQuery, useGetMoviesByActorIdQuery } from '../../services/TMDB';
-import MovieList from '../MovieList/MovieList';
+import { MovieList } from '../index';
 
 function Actors() {
   const theme = useTheme();
@@ -17,68 +14,35 @@ function Actors() {
 
   if (isFetching) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center">
-        <CircularProgress size="8rem" />
-      </Box>
+      <Box><CircularProgress/></Box>
     );
   }
 
   if (error) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center">
+      <Box display="flex" justifyContent="center">
+         <Typography variant="h6">Something went wrong - Go back.</Typography>
       </Box>
     );
   }
 
   return (
     <>
-      {/* Actor Info: 2-column layout */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: 8,
-          mt: 2,
-          alignItems: 'flex-start',
-        }}
-      >
-        {/* Left: Actor Image - fixed width */}
-        <Box
-          sx={{
-            flex: { xs: '0 0 100%', md: '0 0 250px' },
-            display: 'flex',
-            justifyContent: { xs: 'center', md: 'flex-start' },
-          }}
-        >
-          <img
-            style={sx.image}
-            src={`https://image.tmdb.org/t/p/w780/${data?.profile_path}`}
-            alt={data.name}
-          />
-        </Box>
-
-        {/* Right: Actor Info - full width */}
-        <Box
-          sx={{
-            flex: { xs: '0 0 100%', md: '1 1 auto' },
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: { xs: 'center', md: 'flex-start' },
-            width: '100%',
-          }}
-        >
-          <Box sx={{ textAlign: { xs: 'center', md: 'left' }, width: '100%' }}>
-            <Typography variant="h3" sx={{ fontSize: "2.2rem", fontWeight: "bold" }} gutterBottom>{data?.name}</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 100, color: "#9bb0c1", mb: 1 }} gutterBottom>Born: {new Date(data?.birthday).toDateString()} ({new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)</Typography>
-            <Typography variant="body1" sx={{ lineHeight: 1.2, fontSize: '0.7rem', mb: 2 }}>{data?.biography || 'Sorry, no biography yet...'}</Typography>
-            <Box sx={sx.btns}>
-              <Button variant="contained" color="primary" target="_blank" href={`https://www.imdb.com/name/${data?.imdb_id}`}>IMDB</Button>
-            </Box>
-          </Box>
+      <Box sx={sx.layout}> 
+        <img
+          style={sx.image}
+          src={`https://image.tmdb.org/t/p/w780/${data?.profile_path}`}
+          alt={data.name}
+        />
+        <Box>
+          <Typography variant="h3" sx={{ fontWeight: "bold" }}>{data?.name}</Typography>
+          <Typography variant="body1" sx={{ color: theme.palette.text.disabled }} gutterBottom>Born: {new Date(data?.birthday).toDateString()} ({new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)</Typography>
+          <Typography variant="body2" gutterBottom>{data?.biography || 'Sorry, no biography yet...'}</Typography>            
+          <Button variant="contained" sx={sx.button} href={`https://www.imdb.com/name/${data?.imdb_id}`}>IMDB</Button>
         </Box>
       </Box>
-      <Box sx={{ mt: 3, mb: 2 }}>
-        <Typography variant="h2" gutterBottom align="left">Movies</Typography>
+      <Box>
+        <Typography variant="h3" gutterBottom align="left">Movies</Typography>
         {movies && <MovieList movies={movies} />}
       </Box>
     </>
