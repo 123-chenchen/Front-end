@@ -2,8 +2,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { ExitToApp } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
-
-import RatedCards from '../RatedCards/RatedCards';
+import { MovieList } from '../index';
 import { useGetListQuery } from '../../services/TMDB';
 
 // TMDb login profile
@@ -47,14 +46,23 @@ function Profile() {
         </Button>
       </Box>
       
-      {!favoriteMovies?.results?.length && !watchlistMovies?.results?.length
-        ? <Typography variant="h5">Add favourite or watchlist same movies to see them here!</Typography>
-        : (
-          <Box>
-            <RatedCards title="Favorite Movies" movies={favoriteMovies} />
-            <RatedCards title="Watchlist" movies={watchlistMovies} />
-          </Box>
-        )}
+    {favoriteMovies?.results?.length > 0 && (
+  <>
+    <Typography variant="h5" gutterBottom>
+      Favorite Movies
+    </Typography>
+    <MovieList movies={favoriteMovies} />
+  </>
+)}
+{watchlistMovies?.results?.length > 0 && (
+  <>
+    <Typography variant="h5" gutterBottom>
+      Watchlist
+    </Typography>
+    <MovieList movies={watchlistMovies} />
+  </>
+)}
+
     </Box>
   );
 }

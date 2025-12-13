@@ -34,17 +34,20 @@ function Actors() {
           src={`https://image.tmdb.org/t/p/w780/${data?.profile_path}`}
           alt={data.name}
         />
-        <Box>
+        <Box flex="1" >
           <Typography variant="h3" sx={{ fontWeight: "bold" }}>{data?.name}</Typography>
           <Typography variant="body1" sx={{ color: theme.palette.text.disabled }} gutterBottom>Born: {new Date(data?.birthday).toDateString()} ({new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)</Typography>
           <Typography variant="body2" gutterBottom>{data?.biography || 'Sorry, no biography yet...'}</Typography>            
           <Button variant="contained" sx={sx.button} href={`https://www.imdb.com/name/${data?.imdb_id}`}>IMDB</Button>
         </Box>
       </Box>
-      <Box>
-        <Typography variant="h3" gutterBottom align="left">Movies</Typography>
-        {movies && <MovieList movies={movies} />}
-      </Box>
+      
+        <Box sx={{ display: 'flex', gap: 1.5, my: 4}}>
+          <Box sx={sx.line} />
+          <Typography variant="h4">Movies</Typography>
+        </Box>
+          {movies && <MovieList movies={movies} />}
+    
     </>
   );
 }

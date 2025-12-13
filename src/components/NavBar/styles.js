@@ -1,4 +1,3 @@
-// src/components/Navbar/styles.js
 const drawerWidth = 240;
 
 export default function styles(theme) {

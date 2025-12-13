@@ -1,13 +1,12 @@
 import { AppBar, IconButton, Toolbar, Drawer, Button, Avatar, useMediaQuery, Box } from '@mui/material';
 import { Menu, AccountCircle, Brightness4, Brightness7 } from '@mui/icons-material';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 
 import styles from './styles';
-import Search from '../Search/Search';
-import Sidebar from '../Sidebar/Sidebar';
+import { Search, Sidebar } from '../index';
 import { setUser } from '../../features/auth';
 import { ColorModeContext } from '../../utils/ToggleColorMode';
 import { fetchToken, createSessionId, moviesApi } from '../../utils/index';

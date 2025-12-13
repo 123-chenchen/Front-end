@@ -1,9 +1,9 @@
 export default function styles(theme) {
   return {
     image: {
-      display: 'flex',
-      maxWidth: '300px',
-      maxHeight: '100%',
+       width: '350px',
+      height: '450px',
+      objectFit: 'cover',
       borderRadius: '20px',
       boxShadow: '0.5em 0.5em 1em',
     },
@@ -58,7 +58,7 @@ export default function styles(theme) {
     
     castContainer: {
       width: 120,
-      height: 260,
+      height: 200,
       display: "flex",
       flexDirection: "column",
       transition: 'transform 0.25s ease-in-out',
@@ -68,18 +68,9 @@ export default function styles(theme) {
     },
     nameCast: {
       mt: 1,
-      variant:"subtitle1",
-      overflow: 'hidden',
-      width: '100%',          
+      variant:"subtitle1",      
     },
     
-    stagename: { 
-      variant:"body2",
-      color: theme.palette.text.disabled,
-      overflow: 'hidden',
-      width: '100%',
-    },
-
     button: {
       bgcolor: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
       borderRadius: '40px',
@@ -91,13 +82,14 @@ export default function styles(theme) {
     },
 
     castText: {
-      flex: 1.5,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'flex-start',
-      overflow: 'hidden',
       p: 0.5,
     },
 
+    imdb: {
+      color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
+    }
   }
 }

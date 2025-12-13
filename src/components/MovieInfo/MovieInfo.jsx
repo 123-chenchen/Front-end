@@ -109,7 +109,7 @@ function MovieInfo() {
           <Grid container alignItems="baseline" my={1.5} >
             <Grid size={{ xs: 6, md: 4 }} >
               <Button variant="outlined"
-                sx={{ borderRadius: "12px", color: 'Primary'}}
+                sx={sx.imdb}
                 target="_blank"
                 href={`https://www.imdb.com/title/${data?.imdb_id}`}
               >       
@@ -147,9 +147,35 @@ function MovieInfo() {
               ))}
             </Grid>
 
-          <Typography variant="h4" fontWeight={500} gutterBottom>Overview</Typography>
+          <Typography variant="h5" fontWeight={500} gutterBottom>Overview</Typography>
           <Typography variant="body2" gutterBottom>{data?.overview}</Typography>            
           
+          {/* Top Cast */}
+          <Box>
+            <Typography variant="h5" fontWeight={500} gutterBottom>Top Cast</Typography>
+              
+            <Grid container my={2}>
+              {data?.credits?.cast ?.filter((c) => c.profile_path).slice(0, 6).map((character) => (
+                <Grid
+                  component={Link}
+                  to={`/actors/${character.id}`}
+                  sx={ sx.links }
+                >
+                  <Box sx={sx.castContainer}>
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
+                      alt={character.name}
+                      style={sx.castImage}
+                    />
+                    <Box sx={sx.castText}>
+                      <Typography sx={sx.nameCast}>{character.name}</Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
           {/* Buttons */}
           <Grid container justifyContent="space-between" > 
             <Button variant="contained" sx={sx.button} target="_blank" href={data?.homepage}>WEBSITE</Button>
@@ -157,44 +183,13 @@ function MovieInfo() {
             <Button variant="contained" sx={sx.button} onClick={addToFavorites}>{isMovieFavorited ? "UNFAVORITE" : "FAVORITE"}</Button>
             <Button variant="contained" sx={sx.button} onClick={addToWatchList}>WATCHLIST {isMovieWatchlisted ? "-" : "+1"}</Button>
           </Grid>
-
-        </Box>
-      </Box>
- 
-      {/* Top Cast */}
-      <Box my= {6}>
-        <Box sx={{ display: 'flex', gap: 1.5, my: 4}}>
-          <Box sx={sx.line} />
-          <Typography variant="h4">Top Cast</Typography>
-        </Box>
-          
-        <Grid container>
-          {data?.credits?.cast ?.filter((c) => c.profile_path).slice(0, 6).map((character) => (
-            <Grid
-              component={Link}
-              to={`/actors/${character.id}`}
-              sx={ sx.links }
-            >
-              <Box sx={sx.castContainer}>
-                <img
-                  src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
-                  alt={character.name}
-                  style={sx.castImage}
-                />
-                <Box sx={sx.castText}>
-                  <Typography sx={sx.nameCast}>{character.name}</Typography>
-                  <Typography sx={sx.stagename}>{character.character?.split('/')[0] ?? ''}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+            </Box>
+          </Box>
 
       {/* Recommendations */}
       <Box sx={{ display: 'flex', gap: 1.5, my: 4}}>
         <Box sx={sx.line} />
-          <Typography variant="h4">You might also like</Typography>
+          <Typography variant="h4">You might also like...</Typography>
         </Box>
           {recommendations ? (<MovieList movies={recommendations}/>) : (<Typography>Sorry, nothing was found.</Typography>)}
 

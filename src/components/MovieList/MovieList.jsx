@@ -10,7 +10,11 @@ function MovieList({ movies, excludeFirst }) {
     <Grid container 
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gridTemplateColumns: {
+          xs: 'repeat(2, 1fr)',   // mobile
+          sm: 'repeat(3, 1fr)',   // tablet
+          md: 'repeat(6, 1fr)',   // desktop
+        },
         gap: 1
       }}
     >

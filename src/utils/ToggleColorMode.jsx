@@ -27,7 +27,7 @@ export default function ToggleColorModeProvider({ children }) {
  const theme = useMemo(
   () =>
     createTheme({
-      palette: { mode, secondary: {main: '#b71c1c'}},
+      palette: { mode, },
       typography: {
         fontFamily: "'Inder', sans-serif",
       },
