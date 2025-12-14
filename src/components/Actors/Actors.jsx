@@ -1,17 +1,21 @@
+// src/components/Actors/Actors.jsx
 import React from 'react';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
-
-
 import { useTheme } from '@mui/material/styles';
+
 import styles from './styles';
-import { useGetActorQuery, useGetMoviesByActorIdQuery } from '../../services/TMDB';
+import {
+  useGetActorQuery,
+  useGetMoviesByActorIdQuery,
+} from '../../services/moviesApi';   // backend RTK service
 import MovieList from '../MovieList/MovieList';
 
 function Actors() {
   const theme = useTheme();
   const sx = styles(theme);
   const { id } = useParams();
+
   const { data, isFetching, error } = useGetActorQuery(id);
   const { data: movies } = useGetMoviesByActorIdQuery({ id, page: 1 });
 
@@ -26,6 +30,7 @@ function Actors() {
   if (error) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center">
+        {/* keep UI minimal as you had it */}
       </Box>
     );
   }
@@ -42,7 +47,7 @@ function Actors() {
           alignItems: 'flex-start',
         }}
       >
-        {/* Left: Actor Image - fixed width */}
+        {/* Left: Actor Image */}
         <Box
           sx={{
             flex: { xs: '0 0 100%', md: '0 0 250px' },
@@ -57,7 +62,7 @@ function Actors() {
           />
         </Box>
 
-        {/* Right: Actor Info - full width */}
+        {/* Right: Actor Info */}
         <Box
           sx={{
             flex: { xs: '0 0 100%', md: '1 1 auto' },
@@ -68,17 +73,48 @@ function Actors() {
           }}
         >
           <Box sx={{ textAlign: { xs: 'center', md: 'left' }, width: '100%' }}>
-            <Typography variant="h3" sx={{ fontSize: "2.2rem", fontWeight: "bold" }} gutterBottom>{data?.name}</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 100, color: "#9bb0c1", mb: 1 }} gutterBottom>Born: {new Date(data?.birthday).toDateString()} ({new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)</Typography>
-            <Typography variant="body1" sx={{ lineHeight: 1.2, fontSize: '0.7rem', mb: 2 }}>{data?.biography || 'Sorry, no biography yet...'}</Typography>
+            <Typography
+              variant="h3"
+              sx={{ fontSize: '2.2rem', fontWeight: 'bold' }}
+              gutterBottom
+            >
+              {data?.name}
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 100, color: '#9bb0c1', mb: 1 }}
+              gutterBottom
+            >
+              Born:{' '}
+              {new Date(data?.birthday).toDateString()} (
+              {new Date().getFullYear() -
+                new Date(data?.birthday).getFullYear()}{' '}
+              years old)
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ lineHeight: 1.2, fontSize: '0.7rem', mb: 2 }}
+            >
+              {data?.biography || 'Sorry, no biography yet...'}
+            </Typography>
             <Box sx={sx.btns}>
-              <Button variant="contained" color="primary" target="_blank" href={`https://www.imdb.com/name/${data?.imdb_id}`}>IMDB</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                target="_blank"
+                href={`https://www.imdb.com/name/${data?.imdb_id}`}
+              >
+                IMDB
+              </Button>
             </Box>
           </Box>
         </Box>
       </Box>
+
       <Box sx={{ mt: 3, mb: 2 }}>
-        <Typography variant="h2" gutterBottom align="left">Movies</Typography>
+        <Typography variant="h2" gutterBottom align="left">
+          Movies
+        </Typography>
         {movies && <MovieList movies={movies} />}
       </Box>
     </>

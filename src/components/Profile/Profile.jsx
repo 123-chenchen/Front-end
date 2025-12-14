@@ -1,26 +1,27 @@
+// src/components/Profile/Profile.jsx
+import React, { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { ExitToApp } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 import RatedCards from '../RatedCards/RatedCards';
-import { useGetListQuery } from '../../services/TMDB';
+import { useGetListQuery } from '../../services/moviesApi';
 
-// TMDb login profile
+// TMDb login profile (data served by your backend)
 function Profile() {
-  // 1️⃣ Take TMDb account id from the URL: /profile/:id
-  const { id } = useParams();               // e.g. "22403555"
-  const accountId = id;                     // keep as string, backend will accept it
+  // /profile/:id -> TMDb account id
+  const { id } = useParams();
+  const accountId = id;
 
-  // 2️⃣ You still have your local user info if you need it
   const { user } = useSelector((state) => state.user);
 
-  // 3️⃣ Session id from localStorage (TMDb session)
+  // TMDb session id (still stored so backend can use it if needed)
   const sessionId = localStorage.getItem('session_id');
 
   const shouldSkip = !accountId || !sessionId;
 
-  // 4️⃣ Favorite movies for this TMDb account
+  // Favorites
   const {
     data: favoriteMovies,
     refetch: refetchFavorites,
@@ -29,7 +30,7 @@ function Profile() {
     { skip: shouldSkip },
   );
 
-  // 5️⃣ Watchlist movies for this TMDb account
+  // Watchlist
   const {
     data: watchlistMovies,
     refetch: refetchWatchlisted,
@@ -38,74 +39,26 @@ function Profile() {
     { skip: shouldSkip },
   );
 
-  // 6️⃣ Refetch when account/session become available
+  // re-fetch if account/session become available
   useEffect(() => {
     if (!shouldSkip) {
       refetchFavorites();
       refetchWatchlisted();
     }
-<<<<<<< HEAD
   }, [shouldSkip, refetchFavorites, refetchWatchlisted]);
-=======
-  }, [user?.id, sessionId, refetchFavorites, refetchWatchlisted]);
->>>>>>> origin/dev
 
-  // Logout -> clear localStorage
   const logout = () => {
-    localStorage.clear();
+    // You can be more surgical later, but for pure TMDb logout this is OK
+    localStorage.removeItem('request_token');
+    localStorage.removeItem('session_id');
+    localStorage.removeItem('tmdb_account_id');
     window.location.href = '/';
   };
 
-  // Logout + Empty status of Favorites and Watchlists
+  const hasNoLists =
+    !favoriteMovies?.results?.length && !watchlistMovies?.results?.length;
+
   return (
-<<<<<<< HEAD
-    <Box sx={{ p: 3, mt: 8 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Typography variant="h5">
-          TMDb Profile ID: {accountId}
-        </Typography>
-        {user && (
-          <Typography variant="subtitle1">
-            Logged in as: {user.userName || user.fullName || user.email}
-          </Typography>
-        )}
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<ExitToApp />}
-          onClick={logout}
-        >
-          Logout
-        </Button>
-      </Box>
-
-      {/* Example of showing favorites & watchlist if you want */}
-      {/* You can adjust based on how RatedCards expects props */}
-      {favoriteMovies?.results?.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Favorite Movies
-          </Typography>
-          <RatedCards movies={favoriteMovies.results} title="Favorites" />
-        </Box>
-      )}
-
-      {watchlistMovies?.results?.length > 0 && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Watchlist
-          </Typography>
-          <RatedCards movies={watchlistMovies.results} title="Watchlist" />
-        </Box>
-      )}
-=======
     <Box>
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h4" gutterBottom>My Profile</Typography>
@@ -113,16 +66,22 @@ function Profile() {
           Logout &nbsp; <ExitToApp />
         </Button>
       </Box>
-      
-      {!favoriteMovies?.results?.length && !watchlistMovies?.results?.length
-        ? <Typography variant="h5">Add favourite or watchlist same movies to see them here!</Typography>
-        : (
-          <Box>
+
+      {hasNoLists ? (
+        <Typography variant="h5">
+          Add favourite or watchlist movies to see them here!
+        </Typography>
+      ) : (
+        <Box>
+          {favoriteMovies?.results?.length > 0 && (
             <RatedCards title="Favorite Movies" movies={favoriteMovies} />
+          )}
+
+          {watchlistMovies?.results?.length > 0 && (
             <RatedCards title="Watchlist" movies={watchlistMovies} />
-          </Box>
-        )}
->>>>>>> origin/dev
+          )}
+        </Box>
+      )}
     </Box>
   );
 }

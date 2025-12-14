@@ -1,58 +1,59 @@
-import axios from 'axios';
+// src/utils/index.js
+const tmdbApiKey = process.env.REACT_APP_TMDB_KEY;
 
-// Ensure a developer-friendly message if the API key is missing at runtime.
-if (!process.env.REACT_APP_TMDB_KEY) {
-  // eslint-disable-next-line no-console
-  console.error('Missing REACT_APP_TMDB_KEY — add your TMDB API key to .env.local and restart the dev server.');
-}
-
-export const moviesApi = axios.create({
-  baseURL: 'https://api.themoviedb.org/3',
-  params: {
-    api_key: process.env.REACT_APP_TMDB_KEY,
-  },
-});
-
+// 1️⃣ Step 1: get TMDb request token and redirect user to TMDb
 export const fetchToken = async () => {
   try {
-    const { data } = await moviesApi.get('/authentication/token/new');
+    const res = await fetch(
+      `https://api.themoviedb.org/3/authentication/token/new?api_key=${tmdbApiKey}`
+    );
+    const data = await res.json();
 
-    const token = data.request_token;
-
-    if (data.success) {
-      localStorage.setItem('request_token', token);
-      window.location.href = `https://www.themoviedb.org/authenticate/${token}?redirect_to=${window.location.origin}/approved`;
+    if (!data.success) {
+      console.error('TMDb token error:', data);
+      return;
     }
-  } catch (error) {
-    // Log TMDB's response body when available to diagnose 401s and similar errors.
-    // eslint-disable-next-line no-console
-    console.error('fetchToken error:', error.response?.data ?? error.message);
+
+    const requestToken = data.request_token;
+    localStorage.setItem('request_token', requestToken);
+
+    const redirectUrl = `https://www.themoviedb.org/authenticate/${requestToken}` +
+      `?redirect_to=${encodeURIComponent(window.location.origin)}`;
+
+    // send user to TMDb login/approve page
+    window.location.href = redirectUrl;
+  } catch (err) {
+    console.error('fetchToken error:', err);
   }
 };
 
+// 2️⃣ Step 2: after redirect back, exchange token for session_id
 export const createSessionId = async () => {
   const token = localStorage.getItem('request_token');
-
   if (!token) return null;
 
   try {
-    const { data } = await moviesApi.post('authentication/session/new', {
-      request_token: token,
-    });
+    const res = await fetch(
+      `https://api.themoviedb.org/3/authentication/session/new?api_key=${tmdbApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        body: JSON.stringify({ request_token: token }),
+      }
+    );
 
-    if (data && data.success) {
-      const { session_id } = data;
-      localStorage.setItem('session_id', session_id);
-      return session_id;
+    const data = await res.json();
+
+    if (!data.success) {
+      console.error('TMDb session error:', data);
+      return null;
     }
 
-    // Log response if success flag is false so the developer can see why the session creation failed.
-    // eslint-disable-next-line no-console
-    console.error('createSessionId failed:', data);
-    return null;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('createSessionId error:', error.response?.data ?? error.message);
+    const sessionId = data.session_id;
+    localStorage.setItem('session_id', sessionId);
+    return sessionId;
+  } catch (err) {
+    console.error('createSessionId error:', err);
     return null;
   }
 };

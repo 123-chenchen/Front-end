@@ -6,7 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import MovieList from '../MovieList/MovieList';
 import FeaturedMovie from '../FeaturedMovie/FeaturedMovie';
-import { useGetMoviesQuery } from '../../services/TMDB';
+import { useGetMoviesQuery } from '../../services/moviesApi';
 import styles from './styles';
 
 function Movies() {

@@ -1,76 +1,89 @@
-import React from "react";
+// src/components/Profile/RecomovieProfile.jsx
+import React, { useEffect, useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
 import { ExitToApp } from "@mui/icons-material";
-import { Box, Button, Typography, Avatar } from "@mui/material";
 
-  // Load recomovie user
-export default function RecomovieProfile() {
+import RatedCards from "../RatedCards/RatedCards";
+import api from "../../utils/api";
+
+function RecomovieProfile() {
   const storedUser = JSON.parse(localStorage.getItem("recomovie_user"));
 
-  // Logout -> clear token and user fetch from POST Account/Login
+  const [favoriteMovies, setFavoriteMovies] = useState(null);   // { results: [...] }
+  const [watchlistMovies, setWatchlistMovies] = useState(null); // { results: [...] }
+
   const logout = () => {
     localStorage.removeItem("recomovie_token");
     localStorage.removeItem("recomovie_user");
     window.location.href = "/";
   };
-   
-  // Wait??
+
+  useEffect(() => {
+    if (!storedUser) return;
+    
+    const loadLists = async () => {
+      try {
+        const [favRes, watchRes] = await Promise.all([
+          api.get("/me/movies/favorites"),
+          api.get("/me/movies/watchlist"),
+        ]);
+
+        // Shape data to match TMDb structure: { results: [...] }
+        setFavoriteMovies({ results: favRes.data || [] });
+        setWatchlistMovies({ results: watchRes.data || [] });
+      } catch (err) {
+        console.error(
+          "Failed to load personal lists:",
+          err.response?.data ?? err.message
+        );
+        setFavoriteMovies({ results: [] });
+        setWatchlistMovies({ results: [] });
+      }
+    };
+
+    loadLists();
+  }, [storedUser]);
+
   if (!storedUser) {
     return (
-      <Box sx={{ padding: 3 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Not logged in
-        </Typography>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h5">Not logged in</Typography>
       </Box>
     );
   }
 
-  // Personal profile
+  const hasNoLists =
+    !favoriteMovies?.results?.length && !watchlistMovies?.results?.length;
+
+  // 🔻 SAME UI STYLE AS YOUR TMDb Profile
   return (
-    <Box sx={{ padding: 3 }}>
-      {/* Top bar */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Box>
+      <Box display="flex" justifyContent="space-between">
         <Typography variant="h4" gutterBottom>
           My Profile
         </Typography>
-
         <Button color="inherit" onClick={logout}>
           Logout &nbsp; <ExitToApp />
         </Button>
       </Box>
 
-      {/* Basic user info */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 2,
-          mt: 2,
-          mb: 4,
-        }}
-      >
-        <Avatar sx={{ width: 56, height: 56, bgcolor: "#555" }}>
-          {storedUser.username[0].toUpperCase()}
-        </Avatar>
-
+      {hasNoLists ? (
+        <Typography variant="h5">
+          Add favourite or watchlist movies to see them here!
+        </Typography>
+      ) : (
         <Box>
-          <Typography variant="h6">{storedUser.username}</Typography>
+          {favoriteMovies?.results?.length > 0 && (
+            <RatedCards title="Favorite Movies" movies={favoriteMovies} />
+          )}
+
+          {watchlistMovies?.results?.length > 0 && (
+            <RatedCards title="Watchlist" movies={watchlistMovies} />
+          )}
         </Box>
-      </Box>
-
-      {/* Wait for database part... */}
-      <Typography variant="h5" sx={{ mb: 1 }}>
-        Favorite Movies
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 4, opacity: 0.7 }}>
-        (Feature coming soon — Database is on progress...)
-      </Typography>
-
-      <Typography variant="h5" sx={{ mb: 1 }}>
-        Watchlist
-      </Typography>
-      <Typography variant="body1" sx={{ opacity: 0.7 }}>
-        (Feature coming soon — Database is on progress...)
-      </Typography>
+      )}
     </Box>
   );
 }
+
+export default RecomovieProfile;

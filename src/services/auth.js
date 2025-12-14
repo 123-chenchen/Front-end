@@ -12,7 +12,7 @@ export const login = async (username, password) => {
   );
 
   // Save JWT token
-  localStorage.setItem("token", response.data.accessToken);
+  localStorage.setItem("recomovie_token", response.data.accessToken);
   return response.data;
 };
 

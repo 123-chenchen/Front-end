@@ -10,7 +10,8 @@ import Search from '../Search/Search';
 import Sidebar from '../Sidebar/Sidebar';
 import { setUser } from '../../features/auth';
 import { ColorModeContext } from '../../utils/ToggleColorMode';
-import { fetchToken, createSessionId, moviesApi } from '../../utils/index';
+import { fetchToken, createSessionId } from '../../utils/index';
+import api from '../../utils/api';
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -59,7 +60,7 @@ function Navbar() {
         let sessionId = sessionIdFromLocalStorage;
 
         if (!sessionId) {
-          sessionId = await createSessionId();
+          sessionId = await createSessionId();   // now calls TMDb directly
         }
 
         if (!sessionId) {
@@ -67,10 +68,16 @@ function Navbar() {
           return;
         }
 
-        const { data: userData } = await moviesApi.get(`/account?session_id=${sessionId}`);
+        // 🔹 Fetch TMDb account info directly
+        const res = await fetch(
+          `https://api.themoviedb.org/3/account?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${sessionId}`
+        );
+        const userData = await res.json();
+
+        // userData has { id, name, username, avatar, ... }
         dispatch(setUser(userData));
       } catch (error) {
-        console.error('Failed fetching account info:', error);
+        console.error('Failed fetching TMDb account info:', error);
       }
     };
 

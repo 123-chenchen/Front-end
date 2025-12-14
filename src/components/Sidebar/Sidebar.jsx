@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 
 import styles from './styles';
-import { useGetGenresQuery } from '../../services/TMDB';
+import { useGetGenresQuery } from '../../services/moviesApi';
 import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
 

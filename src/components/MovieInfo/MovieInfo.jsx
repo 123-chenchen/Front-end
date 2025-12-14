@@ -1,16 +1,16 @@
+// src/components/MovieInfo/MovieInfo.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Modal,
   Typography,
   Button,
-  ButtonGroup,
   Grid,
   Box,
   CircularProgress,
   Rating,
 } from '@mui/material';
 import {
-  Movie as MovieIcon,
+  Movie as MovieIcon,   // still imported even if not used – UI unchanged
   Theaters,
   Language,
   PlusOne,
@@ -20,37 +20,42 @@ import {
 } from '@mui/icons-material';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-
 import { useTheme } from '@mui/material/styles';
+
 import styles from './styles';
 import MovieList from '../MovieList/MovieList';
 import {
   useGetMovieQuery,
   useGetRecommendationsQuery,
   useGetListQuery,
-} from '../../services/TMDB';
+} from '../../services/moviesApi';
 import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
+import api from '../../utils/api'; // backend client
 
 function MovieInfo() {
   const theme = useTheme();
   const sx = styles(theme);
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.user);
+  const { user, provider } = useSelector((state) => state.user);
   const { id } = useParams();
+  const movieId = Number(id);
+
+  const isTmdb = provider === 'tmdb';
+  const isRecomovie = provider === 'recomovie';
 
   const { data, error, isFetching } = useGetMovieQuery(id);
   const sessionId = localStorage.getItem('session_id');
 
+  // TMDb lists (only when logged in with TMDb)
   const { data: favoriteMovies } = useGetListQuery(
     { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
-    { skip: !user?.id || !sessionId },
+    { skip: !isTmdb || !user?.id || !sessionId },
   );
 
   const { data: watchlistMovies } = useGetListQuery(
     { listName: 'watchlist/movies', accountId: user?.id, sessionId, page: 1 },
-    { skip: !user?.id || !sessionId },
+    { skip: !isTmdb || !user?.id || !sessionId },
   );
 
   const { data: recommendations } = useGetRecommendationsQuery({
@@ -62,46 +67,128 @@ function MovieInfo() {
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
   const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
 
+  // ---- initial flags: TMDb provider ----
   useEffect(() => {
+    if (!isTmdb) return;
     setIsMovieFavorited(
       !!favoriteMovies?.results?.find((movie) => movie?.id === data?.id),
     );
-  }, [favoriteMovies, data]);
+  }, [favoriteMovies, data, isTmdb]);
 
   useEffect(() => {
+    if (!isTmdb) return;
     setIsMovieWatchlisted(
       !!watchlistMovies?.results?.find((movie) => movie?.id === data?.id),
     );
-  }, [watchlistMovies, data]);
+  }, [watchlistMovies, data, isTmdb]);
 
+  // ---- initial flags: Recomovie provider (personal DB lists) ----
+  useEffect(() => {
+    if (!isRecomovie || !movieId) return;
+
+    const loadPersonalFlags = async () => {
+      try {
+        const [favRes, watchRes] = await Promise.all([
+          api.get('/me/movies/favorites'),
+          api.get('/me/movies/watchlist'),
+        ]);
+
+        setIsMovieFavorited(
+          favRes.data?.some(
+            (m) => m.id === movieId || m.movieId === movieId,
+          ) ?? false,
+        );
+        setIsMovieWatchlisted(
+          watchRes.data?.some(
+            (m) => m.id === movieId || m.movieId === movieId,
+          ) ?? false,
+        );
+      } catch (err) {
+        console.error(
+          'Failed to load personal flags:',
+          err.response?.data ?? err.message,
+        );
+      }
+    };
+
+    loadPersonalFlags();
+  }, [isRecomovie, movieId]);
+
+  // ---- FAVORITE handler ----
   const addToFavorites = async () => {
-    await axios.post(
-      `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
-        process.env.REACT_APP_TMDB_KEY
-      }&session_id=${localStorage.getItem('session_id')}`,
-      {
-        media_type: 'movie',
-        media_id: id,
+    if (!movieId) return;
+
+    // Personal Recomovie account
+    if (isRecomovie) {
+      try {
+        if (isMovieFavorited) {
+          await api.delete(`/me/movies/favorites/${movieId}`);
+        } else {
+          await api.post(`/me/movies/favorites/${movieId}`);
+        }
+        setIsMovieFavorited((prev) => !prev);
+      } catch (err) {
+        console.error(
+          'Recomovie favorite toggle failed:',
+          err.response?.data ?? err.message,
+        );
+      }
+      return;
+    }
+
+    // TMDb account
+    if (!isTmdb || !user?.id) return;
+
+    try {
+      await api.post(`/tmdbaccounts/${user.id}/favorite`, {
+        movieId,
         favorite: !isMovieFavorited,
-      },
-    );
-    setIsMovieFavorited((prev) => !prev);
+      });
+
+      setIsMovieFavorited((prev) => !prev);
+    } catch (err) {
+      console.error('TMDb addToFavorites failed:', err.response?.data ?? err.message);
+    }
   };
 
+  // ---- WATCHLIST handler ----
   const addToWatchList = async () => {
-    await axios.post(
-      `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
-        process.env.REACT_APP_TMDB_KEY
-      }&session_id=${localStorage.getItem('session_id')}`,
-      {
-        media_type: 'movie',
-        media_id: id,
+    if (!movieId) return;
+
+    // Personal Recomovie account
+    if (isRecomovie) {
+      try {
+        if (isMovieWatchlisted) {
+          await api.delete(`/me/movies/watchlist/${movieId}`);
+        } else {
+          await api.post(`/me/movies/watchlist/${movieId}`);
+        }
+        setIsMovieWatchlisted((prev) => !prev);
+      } catch (err) {
+        console.error(
+          'Recomovie watchlist toggle failed:',
+          err.response?.data ?? err.message,
+        );
+      }
+      return;
+    }
+
+    // TMDb account
+    if (!isTmdb || !user?.id) return;
+
+    try {
+      await api.post(`/tmdbaccounts/${user.id}/watchlist`, {
+        movieId,
         watchlist: !isMovieWatchlisted,
-      },
-    );
-    setIsMovieWatchlisted((prev) => !prev);
+      });
+
+      setIsMovieWatchlisted((prev) => !prev);
+    } catch (err) {
+      console.error('TMDb addToWatchList failed:', err.response?.data ?? err.message);
+    }
   };
 
+  // ---- loading & error ----
   if (isFetching) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center">
@@ -135,7 +222,7 @@ function MovieInfo() {
             flex: { xs: '0 0 100%', md: '0 0 320px' },
             display: 'flex',
             justifyContent: { xs: 'center', md: 'flex-start' },
-            margin: { xs: '0 auto', md: '0' }, // Center on small screens
+            margin: { xs: '0 auto', md: '0' },
           }}
         >
           <img
@@ -150,8 +237,8 @@ function MovieInfo() {
             flex: { xs: '0 0 100%', md: '1 1 auto' },
             display: 'flex',
             flexDirection: 'column',
-            alignItems: { xs: 'center', md: 'flex-start' }, // Center on small screens
-            margin: { xs: '0 auto', md: '0' }, // Center on small screens
+            alignItems: { xs: 'center', md: 'flex-start' },
+            margin: { xs: '0 auto', md: '0' },
           }}
         >
           <Box sx={{ textAlign: { xs: 'center', md: 'center' } }}>
@@ -181,15 +268,15 @@ function MovieInfo() {
                 </Typography>
               </Box>
 
-             <Typography variant="body1">
-    {data?.runtime} min •{" "}
-    {new Date(data?.release_date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })}{" "}
-    • {data?.original_language?.toUpperCase()}
-  </Typography>
+              <Typography variant="body1">
+                {data?.runtime} min •{' '}
+                {new Date(data?.release_date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}{' '}
+                • {data?.original_language?.toUpperCase()}
+              </Typography>
             </Box>
 
             {/* Genres */}
@@ -223,174 +310,168 @@ function MovieInfo() {
             </Box>
 
             {/* Overview */}
-            <Typography variant="h4" gutterBottom sx={{fontWeight: 'bold', mt: 3 }}> 
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
               Overview
             </Typography>
             <Typography sx={{ mb: 4 }}>{data?.overview}</Typography>
 
             {/* Buttons */}
-            <Box  sx={{
-    mt: 4,
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    gap: 3, // khoảng cách đều giữa các nút
-    flexWrap: "wrap", // mobile tự xuống hàng
-  }}>
+            <Box
+              sx={{
+                mt: 4,
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 3,
+                flexWrap: 'wrap',
+              }}
+            >
+              {/* HÀNG 1 - 3 NÚT */}
+              <Grid
+                container
+                spacing={2}
+                sx={{ mb: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}
+              >
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', px: 3 }}
+                    target="_blank"
+                    href={data?.homepage}
+                  >
+                    WEBSITE
+                  </Button>
+                </Grid>
 
-  {/* HÀNG 1 - 3 NÚT */}
-  <Grid 
-    container 
-    spacing={2} 
-    sx={{ mb: 2, justifyContent: { xs: "center", md: "flex-start" } }}
-  >
-    {/* WEBSITE */}
-    <Grid item>
-      <Button
-        variant="outlined"
-        sx={{ borderRadius: "12px", px: 3 }}
-        target="_blank"
-        href={data?.homepage}
-      >
-        WEBSITE
-      </Button>
-    </Grid>
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', px: 3 }}
+                    target="_blank"
+                    href={`https://www.imdb.com/title/${data?.imdb_id}`}
+                  >
+                    IMDb
+                  </Button>
+                </Grid>
 
-    {/* IMDb */}
-    <Grid item>
-      <Button
-        variant="outlined"
-        sx={{ borderRadius: "12px", px: 3 }}
-        target="_blank"
-        href={`https://www.imdb.com/title/${data?.imdb_id}`}
-      >
-        IMDb
-      </Button>
-    </Grid>
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', px: 3 }}
+                    onClick={() => setOpen(true)}
+                  >
+                    TRAILER
+                  </Button>
+                </Grid>
+              </Grid>
 
-    {/* TRAILER */}
-    <Grid item>
-      <Button
-        variant="outlined"
-        sx={{ borderRadius: "12px", px: 3 }}
-        onClick={() => setOpen(true)}
-      >
-        TRAILER
-      </Button>
-    </Grid>
-  </Grid>
+              {/* HÀNG 2 - 2 NÚT */}
+              <Grid
+                container
+                spacing={2}
+                sx={{
+                  justifyContent: { xs: 'center', md: 'flex-start' },
+                }}
+              >
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', px: 3 }}
+                    onClick={addToFavorites}
+                  >
+                    {isMovieFavorited ? 'UNFAVORITE' : 'FAVORITE'}
+                  </Button>
+                </Grid>
 
-  {/* HÀNG 2 - 2 NÚT */}
-  <Grid 
-    container 
-    spacing={2} 
-    sx={{
-      justifyContent: { xs: "center", md: "flex-start" }
-    }}
-  >
-    {/* FAVORITE */}
-    <Grid item>
-      <Button
-        variant="outlined"
-        sx={{ borderRadius: "12px", px: 3 }}
-        onClick={addToFavorites}
-      >
-        {isMovieFavorited ? "UNFAVORITE" : "FAVORITE"}
-      </Button>
-    </Grid>
-
-    {/* WATCHLIST */}
-    <Grid item>
-      <Button
-        variant="outlined"
-        sx={{ borderRadius: "12px", px: 3 }}
-        onClick={addToWatchList}
-      >
-        WATCHLIST {isMovieWatchlisted ? "-" : "+1"}
-      </Button>
-    </Grid>
-  </Grid>
-
-</Box>
-
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', px: 3 }}
+                    onClick={addToWatchList}
+                  >
+                    WATCHLIST {isMovieWatchlisted ? '-' : '+1'}
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
           </Box>
         </Box>
       </Box>
- {/* HÀNG 2: Top Cast full width */}
-        <Box sx={{ width: '100%', mt: 2.5 }}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Top Cast
-          </Typography>
-          <Grid container spacing={1}>
-  {data?.credits?.cast
-    ?.filter((c) => c.profile_path)
-    .slice(0, 6)
-    .map((character, i) => (
-      <Grid
-        key={i}
-        item
-        xs={4}
-        md={2}
-        component={Link}
-        to={`/actors/${character.id}`}
-        style={{ textDecoration: 'none' }}
-      >
-        <Box
-          sx={{
-              width: "120px",        // chiều rộng cố định
-      height: "260px",       // chiều cao cố định
-      display: "flex",
-      flexDirection: "column",
-            "&:hover": {
-              transform: "scale(1.05)",
-            },
-          }}
-        >
-          <img
-            src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
-            alt={character.name}
-            style={{
-              width: "80%",
-              height: "150px",
-              objectFit: "cover",
-              borderRadius: "12px",
-              flexShrink: 0,
-            }}
-          />
 
-          <Typography
-            color="textPrimary"
-            variant="subtitle1"
-            sx={{ 
-              mt: 1, 
-              fontWeight: 'bold',
-              wordWrap: 'break-word',
-              overflow: 'hidden',
-              width: '100%',
-              px: 1,
-            }}
-          >
-            {character?.name}
-          </Typography>
+      {/* HÀNG 2: Top Cast full width */}
+      <Box sx={{ width: '100%', mt: 2.5 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Top Cast
+        </Typography>
+        <Grid container spacing={1}>
+          {data?.credits?.cast
+            ?.filter((c) => c.profile_path)
+            .slice(0, 6)
+            .map((character, i) => (
+              <Grid
+                key={i}
+                item
+                xs={4}
+                md={2}
+                component={Link}
+                to={`/actors/${character.id}`}
+                style={{ textDecoration: 'none' }}
+              >
+                <Box
+                  sx={{
+                    width: '120px',
+                    height: '260px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    },
+                  }}
+                >
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
+                    alt={character.name}
+                    style={{
+                      width: '80%',
+                      height: '150px',
+                      objectFit: 'cover',
+                      borderRadius: '12px',
+                      flexShrink: 0,
+                    }}
+                  />
 
-          <Typography
-            color="textSecondary"
-            variant="body2"
-            sx={{
-              wordWrap: 'break-word',
-              overflow: 'hidden',
-              width: '100%',
-              px: 1,
-            }}
-          >
-            {character?.character ? character.character.split('/')[0] : ''}
-          </Typography>
-        </Box>
-      </Grid>
-    ))}
-</Grid>
+                  <Typography
+                    color="textPrimary"
+                    variant="subtitle1"
+                    sx={{
+                      mt: 1,
+                      fontWeight: 'bold',
+                      wordWrap: 'break-word',
+                      overflow: 'hidden',
+                      width: '100%',
+                      px: 1,
+                    }}
+                  >
+                    {character?.name}
+                  </Typography>
+
+                  <Typography
+                    color="textSecondary"
+                    variant="body2"
+                    sx={{
+                      wordWrap: 'break-word',
+                      overflow: 'hidden',
+                      width: '100%',
+                      px: 1,
+                    }}
+                  >
+                    {character?.character ? character.character.split('/')[0] : ''}
+                  </Typography>
+                </Box>
+              </Grid>
+            ))}
+        </Grid>
       </Box>
-
 
       {/* Recommendations */}
       <Box marginTop="5rem" width="100%">
@@ -406,11 +487,7 @@ function MovieInfo() {
 
       {/* Trailer Modal */}
       {data?.videos?.results?.length > 0 && (
-        <Modal
-          closeAfterTransition
-          open={open}
-          onClose={() => setOpen(false)}
-        >
+        <Modal closeAfterTransition open={open} onClose={() => setOpen(false)}>
           <div style={sx.modal}>
             <iframe
               autoPlay
