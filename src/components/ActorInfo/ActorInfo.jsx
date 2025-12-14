@@ -5,7 +5,7 @@ import styles from './styles';
 import { useGetActorQuery, useGetMoviesByActorIdQuery } from '../../services/TMDB';
 import { MovieList } from '../index';
 
-function Actors() {
+function ActorInfo() {
   const theme = useTheme();
   const sx = styles(theme);
   const { id } = useParams();
@@ -52,4 +52,4 @@ function Actors() {
   );
 }
 
-export default Actors;
+export default ActorInfo;

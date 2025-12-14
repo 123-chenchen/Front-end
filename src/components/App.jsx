@@ -1,11 +1,10 @@
-import React from 'react';
 import { CssBaseline, Box } from '@mui/material';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 
 import styles from './styles';
 
-import { Movies, Actors, MovieInfo, Navbar, Profile } from './index';
+import { Movies, ActorInfo, MovieInfo, Navbar, Profile } from './index';
 
 import RecomovieLogin from "../pages/RecomovieLogin";
 import RecomovieProfile from "../components/RecomovieProfile/RecomovieProfile";
@@ -36,8 +35,8 @@ function App() {
           <Route exact path="/" element={<Movies />} />
           <Route exact path="/approved" element={<Movies />} />
           <Route exact path="/movie/:id" element={<MovieInfo />} />
-          <Route exact path="/actors/:id" element={<Actors />} />
-          <Route exact path="/actors/:name" element={<Actors />} />
+          <Route exact path="/actors/:id" element={<ActorInfo />} />
+          <Route exact path="/actors/:name" element={<ActorInfo />} />
           <Route exact path="/profile/:id" element={<Profile />} />
           <Route exact path="/genres/:genre" element={<Movies />} />
 

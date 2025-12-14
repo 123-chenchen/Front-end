@@ -6,7 +6,6 @@ export default function styles(theme) {
       alignItems: 'center',
       textDecoration: 'none',
       p: 1,
-      display: 'flex',
       justifyContent: 'center',
       transition: 'transform 0.25s ease-in-out',
       '&:hover': {

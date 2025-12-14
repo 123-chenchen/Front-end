@@ -90,6 +90,7 @@ export default function styles(theme) {
 
     imdb: {
       color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
+      borderRadius: '40px',
     }
   }
 }

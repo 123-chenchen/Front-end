@@ -1,7 +1,7 @@
 import { Box, TextField, Button, Typography, Paper, Avatar } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
 
 // Import Redux dispatcher
 import { useDispatch } from "react-redux";

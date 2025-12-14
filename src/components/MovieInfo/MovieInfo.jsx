@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Typography, Button, Grid, Box, CircularProgress, Rating} from '@mui/material';
+import { Modal, Typography, Button, Grid, Box, CircularProgress } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -108,17 +108,17 @@ function MovieInfo() {
           
           <Grid container alignItems="baseline" my={1.5} >
             <Grid size={{ xs: 6, md: 4 }} >
-              <Button variant="outlined"
+              <Button variant="outlined" color={theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main} 
                 sx={sx.imdb}
                 target="_blank"
                 href={`https://www.imdb.com/title/${data?.imdb_id}`}
               >       
-                <Typography variant="subcribe1" fontWeightLight={300}>
+                <Typography variant="subcribe1" fontWeightLight={500}>
                   IMDB {" "}
                   {data?.vote_average ? (
                     <>
                       {data.vote_average.toFixed(1)} / 10 {" "}
-                      <Typography component="span" variant="caption" ml= '0.75' bgcolor= 'Primary'>
+                      <Typography component="span" variant="caption" ml= '0.75'>
                         ({data.vote_count?.toLocaleString() ?? 0})
                       </Typography>
                     </>
@@ -126,6 +126,7 @@ function MovieInfo() {
                 </Typography>
               </Button>
             </Grid>
+            
             <Grid size={{ xs: 6, md: 8 }}>
               <Typography variant="h5" align="right" gutterBottom>
                   {data?.runtime} min • {" "} {new Date(data?.release_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} {" "} • {data?.original_language?.toUpperCase()}
