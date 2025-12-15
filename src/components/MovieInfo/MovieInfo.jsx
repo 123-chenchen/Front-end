@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Typography, Button, Grid, Box, CircularProgress } from '@mui/material';
+import { Modal, Typography, Snackbar, Alert, Button, Grid, Box, CircularProgress } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -19,6 +19,7 @@ function MovieInfo() {
 
   const { data, error, isFetching } = useGetMovieQuery(id);
   const sessionId = localStorage.getItem('session_id');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const { data: favoriteMovies } = useGetListQuery(
     { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
@@ -52,33 +53,47 @@ function MovieInfo() {
   }, [watchlistMovies, data]);
     
 
-  const addToFavorites = async () => {
-    await axios.post(
-      `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
-        process.env.REACT_APP_TMDB_KEY
-      }&session_id=${localStorage.getItem('session_id')}`,
-      {
-        media_type: 'movie',
-        media_id: id,
-        favorite: !isMovieFavorited,
-      },
-    );
-    setIsMovieFavorited((prev) => !prev);
-  };
+ const addToFavorites = async () => {
+  if (!user || !sessionId) {
+    setOpenSnackbar(true);
+    return;
+  }
+
+  await axios.post(
+    `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
+      process.env.REACT_APP_TMDB_KEY
+    }&session_id=${sessionId}`,
+    {
+      media_type: 'movie',
+      media_id: id,
+      favorite: !isMovieFavorited,
+    },
+  );
+
+  setIsMovieFavorited((prev) => !prev);
+};
+
 
   const addToWatchList = async () => {
-    await axios.post(
-      `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
-        process.env.REACT_APP_TMDB_KEY
-      }&session_id=${localStorage.getItem('session_id')}`,
-      {
-        media_type: 'movie',
-        media_id: id,
-        watchlist: !isMovieWatchlisted,
-      },
-    );
-    setIsMovieWatchlisted((prev) => !prev);
-  };
+  if (!user || !sessionId) {
+    setOpenSnackbar(true);
+    return;
+  }
+
+  await axios.post(
+    `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
+      process.env.REACT_APP_TMDB_KEY
+    }&session_id=${sessionId}`,
+    {
+      media_type: 'movie',
+      media_id: id,
+      watchlist: !isMovieWatchlisted,
+    },
+  );
+
+  setIsMovieWatchlisted((prev) => !prev);
+};
+
 
   if (isFetching) {
     return (
@@ -213,6 +228,21 @@ function MovieInfo() {
           </div>
         </Modal>
       )}
+      <Snackbar
+  open={openSnackbar}
+  autoHideDuration={3000}
+  onClose={() => setOpenSnackbar(false)}
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+>
+  <Alert
+    severity="warning"
+    variant="filled"
+    onClose={() => setOpenSnackbar(false)}
+  >
+    Please login before adding movies
+  </Alert>
+</Snackbar>
+
     </>
   );
 }

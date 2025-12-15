@@ -54,13 +54,26 @@ function Profile() {
   }, [isTMDB, refetchFavorites, refetchWatchlist]);
 
   // ===== LOGOUT (CHUNG) =====
-  const logout = () => {
+  /*const logout = () => {
     localStorage.removeItem('session_id');
     localStorage.removeItem('request_token');
     localStorage.removeItem('recomovie_token');
     localStorage.removeItem('recomovie_user');
     window.location.href = '/';
-  };
+  };*/
+  // ===== LOGOUT TMDB =====
+const logoutTMDB = () => {
+  localStorage.removeItem('session_id');
+  localStorage.removeItem('request_token');
+  window.location.href = '/';
+};
+
+// ===== LOGOUT RECOMOVIE =====
+const logoutRecomovie = () => {
+  localStorage.removeItem('recomovie_token');
+  localStorage.removeItem('recomovie_user');
+  window.location.href = '/';
+};
 
   // ===== CHƯA LOGIN =====
   if (!isTMDB && !isRecomovie) {
@@ -87,9 +100,23 @@ function Profile() {
       >
         <Typography variant="h4">My Profile</Typography>
 
-        <Button color="inherit" onClick={logout}>
-          Logout &nbsp; <ExitToApp />
-        </Button>
+      {/* 
+<Button color="inherit" onClick={logout}>
+  Logout &nbsp; <ExitToApp />
+</Button>
+*/}
+{isTMDB && (
+  <Button color="inherit" onClick={logoutTMDB}>
+    Logout &nbsp; <ExitToApp />
+  </Button>
+)}
+
+{isRecomovie && (
+  <Button color="inherit" onClick={logoutRecomovie}>
+    Logout &nbsp; <ExitToApp />
+  </Button>
+)}
+
       </Box>
 
       {/* USER INFO */}

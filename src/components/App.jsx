@@ -34,7 +34,10 @@ function App() {
           <Route path="/movie/:id" element={<MovieInfo />} />
           <Route path="/actors/:id" element={<ActorInfo />} />
           <Route path="/profile/:id" element={<Profile />} />
-      
+          <Route
+  path="/recomovie-profile/:id"
+  element={<Profile />}
+/>
         </Routes>
       </Box>
 
