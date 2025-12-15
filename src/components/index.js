@@ -8,3 +8,5 @@ export { default as Sidebar } from './Sidebar/Sidebar';
 export { default as MovieInfo } from './MovieInfo/MovieInfo';
 export { default as MovieList } from './MovieList/MovieList';
 export { default as FeaturedMovie } from './FeaturedMovie/FeaturedMovie';
+export { default as ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
+export { default as MainLayout } from './MainLayout/MainLayout';
