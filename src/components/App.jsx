@@ -1,50 +1,71 @@
 import { CssBaseline, Box } from '@mui/material';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 
 import styles from './styles';
-
 import { Movies, ActorInfo, MovieInfo, Navbar, Profile } from './index';
-
-import RecomovieLogin from "../pages/RecomovieLogin";
-import RecomovieProfile from "../components/RecomovieProfile/RecomovieProfile";
+import LoginPage from '../pages/LoginPage';
 
 function App() {
   const theme = useTheme();
   const sx = styles(theme);
 
-  const location = useLocation();
+  const [showLogin, setShowLogin] = useState(false);
 
-  // Routes where Navbar and sidebar layout should be hidden
-  const noLayoutRoutes = ["/recomovie-login"];
-
-  const hideLayout = noLayoutRoutes.includes(location.pathname);
+  useEffect(() => {
+    document.body.style.overflow = showLogin ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showLogin]);
 
   return (
     <Box sx={sx.root}>
       <CssBaseline />
 
-      {/* Hide Navbar on certain pages */}
-      {!hideLayout && <Navbar />}
+      <Navbar onLoginClick={() => setShowLogin(true)} />
 
       <Box component="main" sx={sx.content}>
-        {/* Only push content down when navbar is visible */}
-        {!hideLayout && <Box sx={sx.toolbar} />}
+        <Box sx={sx.toolbar} />
 
         <Routes>
-          <Route exact path="/" element={<Movies />} />
-          <Route exact path="/approved" element={<Movies />} />
-          <Route exact path="/movie/:id" element={<MovieInfo />} />
-          <Route exact path="/actors/:id" element={<ActorInfo />} />
-          <Route exact path="/actors/:name" element={<ActorInfo />} />
-          <Route exact path="/profile/:id" element={<Profile />} />
-          <Route exact path="/genres/:genre" element={<Movies />} />
-
-          {/* Recomovie routes */}
-          <Route path="/recomovie-login" element={<RecomovieLogin />} />
-          <Route path="/recomovie-profile/:id" element={<RecomovieProfile />} />
+          <Route path="/" element={<Movies />} />
+          <Route path="/movie/:id" element={<MovieInfo />} />
+          <Route path="/actors/:id" element={<ActorInfo />} />
+          <Route path="/profile/:id" element={<Profile />} />
+      
         </Routes>
       </Box>
+
+      {/* ===== LOGIN OVERLAY ===== */}
+      {showLogin && (
+        <>
+          <Box
+            onClick={() => setShowLogin(false)}
+            sx={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1300,
+              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(0,0,0,0.55)',
+            }}
+          />
+
+          <Box
+            sx={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 1400,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <LoginPage onClose={() => setShowLogin(false)} />
+          </Box>
+        </>
+      )}
     </Box>
   );
 }
