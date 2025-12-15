@@ -9,6 +9,13 @@ function RatedCards({ title, movies }) {
   const theme = useTheme();
   const sx = styles(theme);
 
+  // Make sure each movie has poster_path, whether it came from TMDb
+  // (poster_path) or from your backend (posterPath)
+  const normalizedResults = (movies?.results || []).map((movie) => ({
+    ...movie,
+    poster_path: movie.poster_path ?? movie.posterPath ?? '',
+  }));
+
   return (
     <Box>
       <Typography variant="h5" gutterBottom>{title}</Typography>

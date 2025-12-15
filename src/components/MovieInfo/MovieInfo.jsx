@@ -10,7 +10,7 @@ import {
   Rating,
 } from '@mui/material';
 import {
-  Movie as MovieIcon,   // still imported even if not used – UI unchanged
+  Movie as MovieIcon,
   Theaters,
   Language,
   PlusOne,
@@ -44,18 +44,23 @@ function MovieInfo() {
   const isTmdb = provider === 'tmdb';
   const isRecomovie = provider === 'recomovie';
 
+  // 🔹 NEW: normalize TMDb account id (works whether backend sends id or tmdbAccountId)
+  const tmdbAccountId = isTmdb
+    ? (user?.tmdbAccountId ?? user?.TMDbAccountId ?? user?.id ?? user?.accountId)
+    : null;
+
   const { data, error, isFetching } = useGetMovieQuery(id);
   const sessionId = localStorage.getItem('session_id');
 
   // TMDb lists (only when logged in with TMDb)
   const { data: favoriteMovies } = useGetListQuery(
-    { listName: 'favorite/movies', accountId: user?.id, sessionId, page: 1 },
-    { skip: !isTmdb || !user?.id || !sessionId },
+    { listName: 'favorite/movies', accountId: tmdbAccountId, sessionId, page: 1 },
+    { skip: !isTmdb || !tmdbAccountId }, // 🔹 only depend on TMDb account id
   );
 
   const { data: watchlistMovies } = useGetListQuery(
-    { listName: 'watchlist/movies', accountId: user?.id, sessionId, page: 1 },
-    { skip: !isTmdb || !user?.id || !sessionId },
+    { listName: 'watchlist/movies', accountId: tmdbAccountId, sessionId, page: 1 },
+    { skip: !isTmdb || !tmdbAccountId }, // 🔹 same here
   );
 
   const { data: recommendations } = useGetRecommendationsQuery({
@@ -69,14 +74,14 @@ function MovieInfo() {
 
   // ---- initial flags: TMDb provider ----
   useEffect(() => {
-    if (!isTmdb) return;
+    if (!isTmdb || !favoriteMovies || !data?.id) return;
     setIsMovieFavorited(
       !!favoriteMovies?.results?.find((movie) => movie?.id === data?.id),
     );
   }, [favoriteMovies, data, isTmdb]);
 
   useEffect(() => {
-    if (!isTmdb) return;
+    if (!isTmdb || !watchlistMovies || !data?.id) return;
     setIsMovieWatchlisted(
       !!watchlistMovies?.results?.find((movie) => movie?.id === data?.id),
     );
@@ -136,18 +141,21 @@ function MovieInfo() {
       return;
     }
 
-    // TMDb account
-    if (!isTmdb || !user?.id) return;
+    // TMDb account (DB + TMDb sync via backend)
+    if (!isTmdb || !tmdbAccountId) return;
 
     try {
-      await api.post(`/tmdbaccounts/${user.id}/favorite`, {
+      await api.post(`/tmdbaccounts/${tmdbAccountId}/favorite`, {
         movieId,
         favorite: !isMovieFavorited,
       });
 
       setIsMovieFavorited((prev) => !prev);
     } catch (err) {
-      console.error('TMDb addToFavorites failed:', err.response?.data ?? err.message);
+      console.error(
+        'TMDb addToFavorites failed:',
+        err.response?.data ?? err.message,
+      );
     }
   };
 
@@ -173,18 +181,21 @@ function MovieInfo() {
       return;
     }
 
-    // TMDb account
-    if (!isTmdb || !user?.id) return;
+    // TMDb account (DB + TMDb sync via backend)
+    if (!isTmdb || !tmdbAccountId) return;
 
     try {
-      await api.post(`/tmdbaccounts/${user.id}/watchlist`, {
+      await api.post(`/tmdbaccounts/${tmdbAccountId}/watchlist`, {
         movieId,
         watchlist: !isMovieWatchlisted,
       });
 
       setIsMovieWatchlisted((prev) => !prev);
     } catch (err) {
-      console.error('TMDb addToWatchList failed:', err.response?.data ?? err.message);
+      console.error(
+        'TMDb addToWatchList failed:',
+        err.response?.data ?? err.message,
+      );
     }
   };
 
@@ -205,6 +216,7 @@ function MovieInfo() {
     );
   }
 
+  // 🔻 UI PART UNCHANGED
   return (
     <>
       {/* HÀNG 1: POSTER + THÔNG TIN PHIM */}

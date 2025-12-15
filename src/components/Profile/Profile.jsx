@@ -2,24 +2,23 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { ExitToApp } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 import RatedCards from '../RatedCards/RatedCards';
 import { useGetListQuery } from '../../services/moviesApi';
 
-// TMDb login profile (data served by your backend)
+// TMDb login profile (lists now come from your DB)
 function Profile() {
-  // /profile/:id -> TMDb account id
+  // /profile/:id -> TMDbAccountId
   const { id } = useParams();
   const accountId = id;
 
-  const { user } = useSelector((state) => state.user);
-
-  // TMDb session id (still stored so backend can use it if needed)
+  // sessionId is no longer required by the backend for lists,
+  // but we still pass it through because the hook expects it.
   const sessionId = localStorage.getItem('session_id');
 
-  const shouldSkip = !accountId || !sessionId;
+  // Only skip when there is no account id
+  const shouldSkip = !accountId;
 
   // Favorites
   const {
@@ -39,7 +38,7 @@ function Profile() {
     { skip: shouldSkip },
   );
 
-  // re-fetch if account/session become available
+  // re-fetch once accountId is available
   useEffect(() => {
     if (!shouldSkip) {
       refetchFavorites();
@@ -48,7 +47,6 @@ function Profile() {
   }, [shouldSkip, refetchFavorites, refetchWatchlisted]);
 
   const logout = () => {
-    // You can be more surgical later, but for pure TMDb logout this is OK
     localStorage.removeItem('request_token');
     localStorage.removeItem('session_id');
     localStorage.removeItem('tmdb_account_id');
@@ -61,7 +59,9 @@ function Profile() {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between">
-        <Typography variant="h4" gutterBottom>My Profile</Typography>
+        <Typography variant="h4" gutterBottom>
+          My Profile
+        </Typography>
         <Button color="inherit" onClick={logout}>
           Logout &nbsp; <ExitToApp />
         </Button>
