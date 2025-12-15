@@ -10,11 +10,7 @@ function FeaturedMovie({ movie }) {
   if (!movie) return null;
 
   return (
-    <Card
-      component={Link}
-      to={`/movie/${movie.id}`}
-      sx={sx.card}
-    >
+    <Card component={Link} to={`/movie/${movie.id}`} sx={sx.card}>
       <CardMedia
         image={`https://image.tmdb.org/t/p/original/${movie?.backdrop_path}`}
         title={movie.title}
@@ -23,11 +19,13 @@ function FeaturedMovie({ movie }) {
 
       <Box sx={sx.cardContentWrapper}>
         <CardContent sx={sx.cardContent}>
-          <Typography variant="h4" gutterBottom>{movie.title}</Typography>
+          <Typography variant="h4" gutterBottom>
+            {movie.title}
+          </Typography>
           <Typography variant="body2">{movie.overview}</Typography>
         </CardContent>
       </Box>
-      </Card>
+    </Card>
   );
 }
 

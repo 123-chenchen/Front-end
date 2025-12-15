@@ -39,10 +39,11 @@ function Navbar({ onLoginClick }) {
   const sessionIdFromLocalStorage = localStorage.getItem('session_id');
   const recomovieUser = JSON.parse(localStorage.getItem('recomovie_user'));
 
-  // ✅ TMDb auth (GIỮ NGUYÊN LOGIC)
+  // ✅ TMDb auth (enhanced to work with existing session_id)
   useEffect(() => {
     const logInUser = async () => {
-      if (!token) return;
+      // Proceed if we have either a request_token (fresh login) or a stored session_id (returning user)
+      if (!token && !sessionIdFromLocalStorage) return;
 
       try {
         let sessionId = sessionIdFromLocalStorage;

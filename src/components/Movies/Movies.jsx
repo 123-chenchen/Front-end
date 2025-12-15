@@ -39,7 +39,7 @@ function Movies() {
   }, [data]);
 
   useEffect(() => {
-    if (moviesMap.size < 300   && data?.page < data?.total_pages && !isFetching) {
+    if (moviesMap.size < 300 && data?.page < data?.total_pages && !isFetching) {
       setPage((p) => p + 1);
     }
   }, [moviesMap.size, data, isFetching]);
@@ -57,8 +57,8 @@ function Movies() {
 
   if (isFetching && !featuredMovie) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center'}}>
-        <CircularProgress/>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
       </Box>
     );
   }

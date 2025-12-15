@@ -1,12 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Bootstrap auth from localStorage to avoid redirect flicker on refresh
+const recomovieTokenFromStorage = localStorage.getItem('recomovie_token');
+const recomovieUserFromStorage = localStorage.getItem('recomovie_user');
+const tmdbSessionFromStorage = localStorage.getItem('session_id');
+
 const initialState = {
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated:
+    !!recomovieTokenFromStorage || !!recomovieUserFromStorage || !!tmdbSessionFromStorage,
+  user: recomovieUserFromStorage ? JSON.parse(recomovieUserFromStorage) : null,
 
   // Recomovie login
-  recomovieToken: null,
-  provider: null, // "tmdb" or "recomovie"
+  recomovieToken: recomovieTokenFromStorage || null,
+  provider: recomovieTokenFromStorage || recomovieUserFromStorage
+    ? 'recomovie'
+    : tmdbSessionFromStorage
+    ? 'tmdb'
+    : null,
 };
 
 const slice = createSlice({
@@ -58,6 +68,26 @@ const slice = createSlice({
       localStorage.removeItem("recomovie_user");
       localStorage.removeItem("recomovie_token");
     },
+
+    // Bootstrap any existing session from storage (TMDb or Recomovie)
+    loadInitialSession(state) {
+      const recomovieToken = localStorage.getItem('recomovie_token');
+      const recomovieUser = localStorage.getItem('recomovie_user');
+      const tmdbSession = localStorage.getItem('session_id');
+
+      if (recomovieToken || recomovieUser) {
+        state.isAuthenticated = true;
+        state.recomovieToken = recomovieToken || null;
+        state.user = recomovieUser ? JSON.parse(recomovieUser) : state.user;
+        state.provider = 'recomovie';
+        return;
+      }
+
+      if (tmdbSession) {
+        state.isAuthenticated = true;
+        state.provider = 'tmdb';
+      }
+    },
   },
 });
 
@@ -66,6 +96,7 @@ export const {
   setRecomovieUser,
   loadRecomovieSession,
   logoutRecomovie,
+  loadInitialSession,
 } = slice.actions;
 
 export default slice.reducer;
