@@ -8,14 +8,14 @@ function MovieList({ movies, excludeFirst }) {
   const theme = useTheme();
   const sx = styles(theme);
 
-  const [mounted, setMounted] = useState(false); // ✅ hook lên trên
+  const [mounted, setMounted] = useState(false); 
   const startIndex = excludeFirst ? 1 : 0;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!movies?.results?.length) return null; // ✅ return sau hook
+  if (!movies?.results?.length) return null; 
 
   return (
     <Grid container sx={sx.grid}>

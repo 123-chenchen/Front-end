@@ -1,8 +1,10 @@
 import { Grid, Fade, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
+
 import { Movie } from '../index';
 import styles from './styles';
-import { useTheme } from '@mui/material/styles';
+
 
 function List({ movies, excludeFirst }) {
   const theme = useTheme();

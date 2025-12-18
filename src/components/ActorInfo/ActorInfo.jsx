@@ -1,9 +1,10 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+
 import styles from './styles';
 import { useGetActorQuery, useGetMoviesByActorIdQuery } from '../../services/TMDB';
-import { MovieList } from '../index';
+import MovieList from '../MovieList/MovieList';
 
 function ActorInfo() {
   const theme = useTheme();
@@ -14,9 +15,7 @@ function ActorInfo() {
 
   if (isFetching) {
     return (
-      <Box>
-        <CircularProgress />
-      </Box>
+      <Box display="flex" justifyContent="center" ><CircularProgress /></Box>
     );
   }
 

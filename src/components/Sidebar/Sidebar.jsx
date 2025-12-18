@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
-import { Divider, List, ListItem, ListItemText, ListSubheader, ListItemIcon, Box, CircularProgress } from '@mui/material';
+import { Divider, ListItem, ListItemText, ListSubheader, ListItemIcon, Box, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
+
 import styles from './styles';
 import { useGetGenresQuery } from '../../services/TMDB';
 import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
-import redLogo from '../../assets/logo/redlogo.svg';
-import blueLogo from '../../assets/logo/bluelogo.svg';
+import redLogo from '../../assets/logo/4.png';
+import blueLogo from '../../assets/logo/3.png';
 
 const categories = [
   { label: 'Popular', value: 'popular' },
@@ -20,7 +21,7 @@ function Sidebar({ setMobileOpen }) {
   const theme = useTheme();
   const sx = styles(theme);
   const dispatch = useDispatch();
-  const { data, isFetching } = useGetGenresQuery();
+  const { data } = useGetGenresQuery();
   const { genreIdOrCategoryName } = useSelector(
     (state) => state.currentGenreOrCategory,
   );

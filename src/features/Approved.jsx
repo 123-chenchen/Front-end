@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Box, CircularProgress, Typography } from '@mui/material';
-
 import { createSessionId, moviesApi } from '../utils';
-import { setUser } from '../features/auth';
+import { setUser } from './auth';
 
 export default function Approved() {
   const dispatch = useDispatch();
@@ -36,14 +34,4 @@ export default function Approved() {
     finalizeTmdbSession();
   }, [dispatch, navigate]);
 
-  return (
-    <Box sx={{ display: 'grid', placeItems: 'center', height: '100vh' }}>
-      <Box sx={{ textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="body2" sx={{ mt: 2, opacity: 0.7 }}>
-          Finalizing sign-in...
-        </Typography>
-      </Box>
-    </Box>
-  );
 }

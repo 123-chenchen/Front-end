@@ -1,6 +1,7 @@
 import { Box, Typography, Card, CardContent, CardMedia } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+
 import styles from './styles';
 
 function FeaturedMovie({ movie }) {

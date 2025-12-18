@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 
 import styles from './styles';
 
-function Movie({ movie, i }) {
+function Movie({ movie }) {
   const theme = useTheme();
   const sx = styles(theme);
 

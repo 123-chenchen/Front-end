@@ -1,7 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import { Movies, ActorInfo, MovieInfo, Profile, ProtectedRoute, MainLayout } from './index';
-import LoginPage from '../pages/LoginPage';
-import Approved from '../pages/Approved';
+import LoginPage from './FirstStage/Login';
+import Register from './FirstStage/Register';
+import Approved from '../features/Approved';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           }
         />
       </Route>
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }

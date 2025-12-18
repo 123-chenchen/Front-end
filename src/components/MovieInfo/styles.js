@@ -1,7 +1,8 @@
 export default function styles(theme) {
   return {
     image: {
-       width: '350px',
+      width: '100%',
+      maxWidth: '300px',
       height: '450px',
       objectFit: 'cover',
       borderRadius: '20px',
@@ -28,10 +29,10 @@ export default function styles(theme) {
     },
 
     castImage: {
-      width: "80%",
-      height: "150px",
-      objectFit: "cover",
-      borderRadius: "12px",
+      width: '80%',
+      height: '150px',
+      objectFit: 'cover',
+      borderRadius: '12px',
     },
 
     links: {
@@ -53,14 +54,15 @@ export default function styles(theme) {
 
     line: {
       width: '3px',
-      bgcolor: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
+      bgcolor:
+        theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
     },
-    
+
     castContainer: {
       width: 120,
       height: 200,
-      display: "flex",
-      flexDirection: "column",
+      display: 'flex',
+      flexDirection: 'column',
       transition: 'transform 0.25s ease-in-out',
       '&:hover': {
         transform: 'scale(1.05)',
@@ -68,11 +70,12 @@ export default function styles(theme) {
     },
     nameCast: {
       mt: 1,
-      variant:"subtitle1",      
+      variant: 'subtitle1',
     },
-    
+
     button: {
-      bgcolor: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
+      bgcolor:
+        theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
       borderRadius: '40px',
       my: 2.5,
       transition: 'transform 0.25s ease-in-out',
@@ -89,8 +92,8 @@ export default function styles(theme) {
     },
 
     imdb: {
-      color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,       
+      color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
       borderRadius: '40px',
-    }
-  }
+    },
+  };
 }

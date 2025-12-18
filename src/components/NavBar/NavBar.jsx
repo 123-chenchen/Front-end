@@ -8,12 +8,7 @@ import {
   Avatar,
   useMediaQuery,
 } from '@mui/material';
-import {
-  Menu,
-  Brightness4,
-  Brightness7,
-  AccountCircle,
-} from '@mui/icons-material';
+import { Menu, Brightness4, Brightness7, AccountCircle } from '@mui/icons-material';
 import { useState, useContext, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
@@ -39,7 +34,6 @@ function Navbar({ onLoginClick }) {
   const sessionIdFromLocalStorage = localStorage.getItem('session_id');
   const recomovieUser = JSON.parse(localStorage.getItem('recomovie_user'));
 
-  // ✅ TMDb auth (enhanced to work with existing session_id)
   useEffect(() => {
     const logInUser = async () => {
       // Proceed if we have either a request_token (fresh login) or a stored session_id (returning user)
@@ -49,9 +43,7 @@ function Navbar({ onLoginClick }) {
         let sessionId = sessionIdFromLocalStorage;
         if (!sessionId) sessionId = await createSessionId();
 
-        const { data } = await moviesApi.get(
-          `/account?session_id=${sessionId}`
-        );
+        const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
         dispatch(setUser(data));
       } catch (err) {
         console.error(err);
@@ -61,20 +53,14 @@ function Navbar({ onLoginClick }) {
     logInUser();
   }, [token, sessionIdFromLocalStorage, dispatch]);
 
-  // 🎯 Render login / profile
+
   const renderAuthButton = () => {
     // Recomovie
     if (recomovieUser) {
       return (
-        <Button
-          color="inherit"
-          component={Link}
-          to={`/recomovie-profile/${recomovieUser.id}`}
-        >
+        <Button color="inherit" component={Link} to={`/recomovie-profile/${recomovieUser.id}`}>
           {!isMobile && 'My Profile '}
-          <Avatar sx={{ width: 30, height: 30 }}>
-            {recomovieUser.username[0].toUpperCase()}
-          </Avatar>
+          <Avatar sx={{ width: 30, height: 30 }}>{recomovieUser.username[0].toUpperCase()}</Avatar>
         </Button>
       );
     }
@@ -82,11 +68,7 @@ function Navbar({ onLoginClick }) {
     // TMDb
     if (isAuthenticated && user) {
       return (
-        <Button
-          color="inherit"
-          component={Link}
-          to={`/profile/${user.id}`}
-        >
+        <Button color="inherit" component={Link} to={`/profile/${user.id}`}>
           {!isMobile && 'My Movies '}
           <Avatar
             sx={{ width: 30, height: 30 }}
@@ -102,16 +84,10 @@ function Navbar({ onLoginClick }) {
 
     // Chưa login
     return (
-
-  <Button
-    color="inherit"
-    startIcon={<AccountCircle />}
-    onClick={onLoginClick}
-  >
-    LOGIN
-  </Button>
-);
-
+      <Button color="inherit" startIcon={<AccountCircle />} onClick={onLoginClick}>
+        LOGIN
+      </Button>
+    );
   };
 
   return (
@@ -127,11 +103,7 @@ function Navbar({ onLoginClick }) {
 
           {/* Toggle theme */}
           <IconButton onClick={colorMode.toggleColorMode}>
-            {theme.palette.mode === 'dark' ? (
-              <Brightness7 />
-            ) : (
-              <Brightness4 />
-            )}
+            {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
 
           {/* Search desktop */}
