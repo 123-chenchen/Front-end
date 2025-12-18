@@ -1,18 +1,13 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link, Link as RouterLink, useNavigate } from 'react-router-dom';
-import { loginWithRecomovie } from '../../features/recomovielogin';
-import { fetchToken } from '../../utils';
-import styles from './styles';
-import background from '../../assets/background/background.png';
-import redLogo from '../../assets/logo/4.png';
-import blueLogo from '../../assets/logo/3.png';
-import { ColorModeContext } from '../../utils/ToggleColorMode';
-import { IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { Box, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import background from '../../assets/background/background.png';
+import blueLogo from '../../assets/logo/3.png';
+import redLogo from '../../assets/logo/4.png';
+import { ColorModeContext } from '../../utils/ToggleColorMode';
+import styles from './styles';
 
 export default function Register({ onClose }) {
   const theme = useTheme();
@@ -64,31 +59,21 @@ export default function Register({ onClose }) {
           <Typography>Or</Typography>
 
           {/* RECOMOVIE LOGIN */}
-          <TextField
-            label="Fullname"
-          />
-<TextField
-            label="Email"
-          />
-          <TextField
-            label="Username"
-          />
-          <TextField
-            label="Password"
-          />
-          <TextField
-            label="Confirm Password"
-          />
-         
+          <TextField label="Fullname" />
+          <TextField label="Email" />
+          <TextField label="Username" />
+          <TextField label="Password" />
+          <TextField label="Confirm Password" />
 
-          <Button >
+          <Button>
             <Typography sx={sx.text}>Sign in Recomovie</Typography>
           </Button>
-  
         </Stack>
-        <Typography variant="body2" mt={3}> 
+        <Typography variant="body2" mt={3}>
           Already have an account?{' '}
-          <Link to="/login" sx={sx.text}>Sign in</Link>
+          <Link to="/login" sx={sx.text}>
+            Sign in
+          </Link>
         </Typography>
       </Box>
     </Box>

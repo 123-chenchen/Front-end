@@ -1,40 +1,24 @@
-import { Grid, Fade, Box } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { Typography, Box } from '@mui/material';
+
 import { useTheme } from '@mui/material/styles';
-
-import { Movie } from '../index';
 import styles from './styles';
+import Movie from '../Movie/Movie';
 
-
-function List({ movies, excludeFirst }) {
+function List({ title, movies }) {
   const theme = useTheme();
   const sx = styles(theme);
 
-  const [mounted, setMounted] = useState(false); // ✅ hook lên trên
-  const startIndex = excludeFirst ? 1 : 0;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!movies?.results?.length) return null; // ✅ return sau hook
 
   return (
-    <Grid container sx={sx.grid}>
-      {movies.results.slice(startIndex).map((movie, i) => (
-        <Fade
-          key={movie.id}
-          in={mounted}
-          appear
-          mountOnEnter
-          timeout={300 + i * 120}
-        >
-          <Box sx={sx.box}>
-            <Movie movie={movie} i={i} />
-          </Box>
-        </Fade>
-      ))}
-    </Grid>
+    <Box>
+      <Typography variant="h5" gutterBottom>{title}</Typography>
+      <Box display="flex"  sx={{margin: '20px 0',}}>
+        {movies?.results.map((movie, i) => (
+          <Movie key={movie.id} movie={movie} i={i} />
+        ))}
+      </Box>
+    </Box>
   );
 }
 

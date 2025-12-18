@@ -39,7 +39,7 @@ function ActorInfo() {
           <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
             {data?.name}
           </Typography>
-          <Typography variant="body1" sx={{ color: theme.palette.text.disabled }} gutterBottom>
+          <Typography variant="body1" color={theme.palette.text.disabled} gutterBottom>
             Born: {new Date(data?.birthday).toDateString()} (
             {new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)
           </Typography>

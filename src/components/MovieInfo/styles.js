@@ -42,9 +42,12 @@ export default function styles(theme) {
     },
 
     modal: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '70vw',
+      height: '70vh',
     },
 
     video: {

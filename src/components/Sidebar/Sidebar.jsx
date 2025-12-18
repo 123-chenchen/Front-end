@@ -1,15 +1,14 @@
-import { useEffect } from 'react';
-import { Divider, ListItem, ListItemText, ListSubheader, ListItemIcon, Box, CircularProgress } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Divider, ListItem, ListItemIcon, ListItemText, ListSubheader } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-import styles from './styles';
-import { useGetGenresQuery } from '../../services/TMDB';
-import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
-import redLogo from '../../assets/logo/4.png';
 import blueLogo from '../../assets/logo/3.png';
+import redLogo from '../../assets/logo/4.png';
+import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
+import { useGetGenresQuery } from '../../services/TMDB';
+import styles from './styles';
 
 const categories = [
   { label: 'Popular', value: 'popular' },
@@ -17,19 +16,11 @@ const categories = [
   { label: 'Upcoming', value: 'upcoming' },
 ];
 
-function Sidebar({ setMobileOpen }) {
+function Sidebar() {
   const theme = useTheme();
   const sx = styles(theme);
   const dispatch = useDispatch();
   const { data } = useGetGenresQuery();
-  const { genreIdOrCategoryName } = useSelector(
-    (state) => state.currentGenreOrCategory,
-  );
-
-  useEffect(() => {
-    // Đóng sidebar mobile khi đổi category / genre
-    setMobileOpen(false);
-  }, [genreIdOrCategoryName, setMobileOpen]);
 
   const logo = theme.palette.mode === 'light' ? blueLogo : redLogo;
 
@@ -37,7 +28,7 @@ function Sidebar({ setMobileOpen }) {
     <>
       {/* Logo */}
       <Link to="/">
-        <img style={sx.image} src={logo}/>
+        <img style={sx.image} src={logo} alt="" />
       </Link>
 
       <Divider />
@@ -48,17 +39,12 @@ function Sidebar({ setMobileOpen }) {
         <Link key={value} style={sx.links} to="/">
           <ListItem button onClick={() => dispatch(selectGenreOrCategory(value))}>
             <ListItemIcon>
-              <img
-                src={genreIcons[label.toLowerCase()]}
-                style={sx.genreImages}
-                alt={label}
-              />
+              <img src={genreIcons[label.toLowerCase()]} style={sx.genreImages} alt={label} />
             </ListItemIcon>
             <ListItemText primary={label} />
           </ListItem>
         </Link>
       ))}
-
 
       <Divider />
 
@@ -68,16 +54,12 @@ function Sidebar({ setMobileOpen }) {
         <Link key={name} style={sx.links} to="/">
           <ListItem button onClick={() => dispatch(selectGenreOrCategory(id))}>
             <ListItemIcon>
-              <img
-                src={genreIcons[name.toLowerCase()]}
-                style={sx.genreImages}
-                alt={name}
-              />
+              <img src={genreIcons[name.toLowerCase()]} style={sx.genreImages} alt={name} />
             </ListItemIcon>
             <ListItemText primary={name} />
           </ListItem>
         </Link>
-      ))}    
+      ))}
     </>
   );
 }

@@ -1,31 +1,36 @@
+import LiveTvIcon from '@mui/icons-material/LiveTv';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link, Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import background from '../../assets/background/background.png';
+import blueLogo from '../../assets/logo/3.png';
+import redLogo from '../../assets/logo/4.png';
 import { loginWithRecomovie } from '../../features/recomovielogin';
 import { fetchToken } from '../../utils';
 import styles from './styles';
-import background from '../../assets/background/background.png';
-import redLogo from '../../assets/logo/4.png';
-import blueLogo from '../../assets/logo/3.png';
-import { ColorModeContext } from '../../utils/ToggleColorMode';
-import { IconButton } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
-import { useContext } from 'react';
-import LiveTvIcon from '@mui/icons-material/LiveTv';
+import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
 export default function LoginPage({ onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const sx = styles(theme);
-  const colorMode = useContext(ColorModeContext);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const logo = theme.palette.mode === 'dark' ? redLogo : blueLogo;
+
+  const from =
+    (typeof location.state?.from === 'string' && location.state.from) ||
+    sessionStorage.getItem('auth_from') ||
+    '/';
+  const safeFrom = from.startsWith('/login') ? '/' : from;
+
   // TMDB LOGIN
   const handleTMDbLogin = () => {
+    sessionStorage.setItem('auth_from', safeFrom);
     fetchToken();
   };
 
@@ -39,7 +44,8 @@ export default function LoginPage({ onClose }) {
     try {
       await loginWithRecomovie(dispatch, { username, password });
       onClose?.();
-      navigate('/');
+      sessionStorage.removeItem('auth_from');
+      navigate(safeFrom, { replace: true });
     } catch (err) {
       console.error(err);
       alert(err.message || 'Login failed. Backend error.');
@@ -50,25 +56,11 @@ export default function LoginPage({ onClose }) {
     <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
       <Box sx={sx.overlay} />
 
-      {/* Toggle theme */}
-      <IconButton
-        onClick={colorMode.toggleColorMode}
-        sx={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          zIndex: 2,
-          color: 'white',
-        }}
-      >
-        {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-      </IconButton>
-
       <Box
         sx={{
           position: 'absolute',
-          top: 20,
-          left: 20,
+          top: 16,
+          left: 16,
         }}
       >
         <img src={logo} alt="Logo" style={{ height: 100 }} />
@@ -82,9 +74,15 @@ export default function LoginPage({ onClose }) {
           </Typography>
 
           {/* TMDB LOGIN */}
-          <Button variant="outlined"  onClick={handleTMDbLogin} color={theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main} 
-                sx={sx.button}>
-            <LiveTvIcon/> 
+          <Button
+            variant="outlined"
+            onClick={handleTMDbLogin}
+            color={
+              theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main
+            }
+            sx={sx.button}
+            startIcon={<LiveTvIcon />}
+          >
             <Typography sx={sx.text}>Sign in with TMDB</Typography>
           </Button>
 
@@ -104,23 +102,31 @@ export default function LoginPage({ onClose }) {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Button variant="outlined" sx={sx.button} color={theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main}  onClick={handleRecomovieLogin}>
+          <Button
+            variant="outlined"
+            sx={sx.button}
+            color={
+              theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main
+            }
+            onClick={handleRecomovieLogin}
+            startIcon={<LocalMoviesIcon />}
+          >
             <Typography sx={sx.text}>Sign in Recomovie</Typography>
           </Button>
           <Typography>
-            You don't have an account yet.{' '}
+            You don't have an account yet?
             <Typography
               component={RouterLink}
               to="/register"
-              sx={{...sx.text, zIndex: 10, position: 'relative' }}
+              sx={{ ...sx.text, zIndex: 10, position: 'relative' }}
             >
-              Sign up
+               &nbsp; Sign up
             </Typography>
             <Typography>
-               <Link to="/reset-password" sx={sx.text} style={{ textDecoration: 'none' }}>
-            Forgot password?{' '}
-            </Link>
-            </Typography>  
+              <Link to="/reset-password" sx={sx.text} style={{ textDecoration: 'none' }}>
+                Forgot password?
+              </Link>
+            </Typography>
           </Typography>
         </Stack>
       </Box>

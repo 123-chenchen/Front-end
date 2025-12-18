@@ -2,8 +2,7 @@ import { Box, Button, Typography, Avatar } from '@mui/material';
 import { ExitToApp } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
-
-import { MovieList } from '../index';
+import List from './List';
 import { useGetListQuery } from '../../services/TMDB';
 
 function Profile() {
@@ -12,18 +11,13 @@ function Profile() {
   const sessionId = localStorage.getItem('session_id');
 
   // ===== RECOMOVIE STATE =====
-  const recomovieUser = JSON.parse(
-    localStorage.getItem('recomovie_user')
-  );
+  const recomovieUser = JSON.parse(localStorage.getItem('recomovie_user'));
 
   const isTMDB = Boolean(tmdbUser?.id && sessionId);
   const isRecomovie = Boolean(recomovieUser);
 
   // ===== TMDB QUERIES =====
-  const {
-    data: favoriteMovies,
-    refetch: refetchFavorites,
-  } = useGetListQuery(
+  const { data: favoriteMovies, refetch: refetchFavorites } = useGetListQuery(
     {
       listName: 'favorite/movies',
       accountId: tmdbUser?.id,
@@ -33,10 +27,7 @@ function Profile() {
     { skip: !isTMDB }
   );
 
-  const {
-    data: watchlistMovies,
-    refetch: refetchWatchlist,
-  } = useGetListQuery(
+  const { data: watchlistMovies, refetch: refetchWatchlist } = useGetListQuery(
     {
       listName: 'watchlist/movies',
       accountId: tmdbUser?.id,
@@ -62,18 +53,18 @@ function Profile() {
     window.location.href = '/';
   };*/
   // ===== LOGOUT TMDB =====
-const logoutTMDB = () => {
-  localStorage.removeItem('session_id');
-  localStorage.removeItem('request_token');
-  window.location.href = '/';
-};
+  const logoutTMDB = () => {
+    localStorage.removeItem('session_id');
+    localStorage.removeItem('request_token');
+    window.location.href = '/';
+  };
 
-// ===== LOGOUT RECOMOVIE =====
-const logoutRecomovie = () => {
-  localStorage.removeItem('recomovie_token');
-  localStorage.removeItem('recomovie_user');
-  window.location.href = '/';
-};
+  // ===== LOGOUT RECOMOVIE =====
+  const logoutRecomovie = () => {
+    localStorage.removeItem('recomovie_token');
+    localStorage.removeItem('recomovie_user');
+    window.location.href = '/';
+  };
 
   // ===== CHƯA LOGIN =====
   if (!isTMDB && !isRecomovie) {
@@ -85,54 +76,23 @@ const logoutRecomovie = () => {
   }
 
   // ===== USER INFO (CHUNG UI) =====
-  const displayName = isTMDB
-    ? tmdbUser.username
-    : recomovieUser.username;
+  const displayName = isTMDB ? tmdbUser.username : recomovieUser.username;
 
   return (
     <Box sx={{ p: 3 }}>
       {/* HEADER */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Typography variant="h4">My Profile</Typography>
-
-      {/* 
-<Button color="inherit" onClick={logout}>
-  Logout &nbsp; <ExitToApp />
-</Button>
-*/}
-{isTMDB && (
-  <Button color="inherit" onClick={logoutTMDB}>
-    Logout &nbsp; <ExitToApp />
-  </Button>
-)}
-
-{isRecomovie && (
-  <Button color="inherit" onClick={logoutRecomovie}>
-    Logout &nbsp; <ExitToApp />
-  </Button>
-)}
-
-      </Box>
-
-      {/* USER INFO */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <Avatar sx={{ width: 56, height: 56, bgcolor: '#555' }}>
-          {displayName[0].toUpperCase()}
-        </Avatar>
-
-        <Typography variant="h6">{displayName}</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        {isTMDB && (
+          <Button
+            color="inherit"
+            onClick={() => {
+              logoutTMDB();
+              logoutRecomovie();
+            }}
+          >
+            Logout &nbsp; <ExitToApp />
+          </Button>
+        )}
       </Box>
 
       {/* ===== TMDB CONTENT ===== */}
@@ -143,7 +103,7 @@ const logoutRecomovie = () => {
               <Typography variant="h5" gutterBottom>
                 Favorite Movies
               </Typography>
-              <MovieList movies={favoriteMovies} />
+              <List movies={favoriteMovies} />
             </>
           )}
 
@@ -152,7 +112,7 @@ const logoutRecomovie = () => {
               <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
                 Watchlist
               </Typography>
-              <MovieList movies={watchlistMovies} />
+              <List movies={watchlistMovies} />
             </>
           )}
         </>

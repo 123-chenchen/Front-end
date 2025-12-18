@@ -1,61 +1,98 @@
-import { Routes, Route } from 'react-router-dom';
-import { Movies, ActorInfo, MovieInfo, Profile, ProtectedRoute, MainLayout } from './index';
+import { Box, CssBaseline } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { Route, Routes } from 'react-router-dom';
+import Approved from '../features/Approved';
 import LoginPage from './FirstStage/Login';
 import Register from './FirstStage/Register';
-import Approved from '../features/Approved';
+import { ActorInfo, MovieInfo, Movies, Profile } from './index';
+import Navbar from './Navbar/Navbar';
+import styles from './styles';
+
+function Layout({ children }) {
+  const theme = useTheme();
+  const sx = styles(theme);
+
+  return (
+    <Box sx={sx.root}>
+      <CssBaseline />
+      <Navbar />
+      <Box component="main" sx={sx.content}>
+        <Box sx={sx.toolbar} />
+        {children}
+      </Box>
+    </Box>
+  );
+}
 
 function App() {
   return (
     <Routes>
-      {/* Public route without Navbar */}
-      <Route path="/login" element={<LoginPage />} />
-      {/* TMDb approval callback: finalize session then redirect */}
-      <Route path="/approved" element={<Approved />} />
+      <Route
+        path="/"
+        element={
+          <Layout>
+            <Movies />
+          </Layout>
+        }
+      />
+      <Route
+        path="/movie/:id"
+        element={
+          <Layout>
+            <MovieInfo />
+          </Layout>
+        }
+      />
+      <Route
+        path="/actors/:id"
+        element={
+          <Layout>
+            <ActorInfo />
+          </Layout>
+        }
+      />
 
-      {/* Protected routes with MainLayout (Navbar + content) */}
-      <Route element={<ProtectedRoute />}>
-        <Route
-          path="/"
-          element={
-            <MainLayout>
-              <Movies />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/movie/:id"
-          element={
-            <MainLayout>
-              <MovieInfo />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/actors/:id"
-          element={
-            <MainLayout>
-              <ActorInfo />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/profile/:id"
-          element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/recomovie-profile/:id"
-          element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          }
-        />
-      </Route>
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/login"
+        element={
+          <Layout>
+            <LoginPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+         
+            <Register />
+        
+        }
+      />
+      <Route
+        path="/approved"
+        element={
+          
+            <Approved />
+        
+        }
+      />
+
+      <Route
+        path="/tmdb-profile/:id"
+        element={
+          <Layout>
+            <Profile />
+          </Layout>
+        }
+      />
+      <Route
+        path="/recomovie-profile/:id"
+        element={
+          <Layout>
+            <Profile />
+          </Layout>
+        }
+      />
     </Routes>
   );
 }

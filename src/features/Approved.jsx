@@ -22,8 +22,10 @@ export default function Approved() {
           dispatch(setUser(data));
         }
 
-        // Go to main layout
-        navigate('/', { replace: true });
+        const from = sessionStorage.getItem('auth_from') || '/';
+        const safeFrom = from.startsWith('/login') ? '/' : from;
+        sessionStorage.removeItem('auth_from');
+        navigate(safeFrom, { replace: true });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('TMDb approval handling failed:', err);
@@ -33,5 +35,4 @@ export default function Approved() {
 
     finalizeTmdbSession();
   }, [dispatch, navigate]);
-
 }

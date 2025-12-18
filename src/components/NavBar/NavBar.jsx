@@ -1,31 +1,23 @@
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  Box,
-  Button,
-  Avatar,
-  useMediaQuery,
-} from '@mui/material';
-import { Menu, Brightness4, Brightness7, AccountCircle } from '@mui/icons-material';
-import { useState, useContext, useEffect } from 'react';
+import { AccountCircle, Brightness4, Brightness7 } from '@mui/icons-material';
+import { AppBar, Avatar, Box, Button, Drawer, IconButton, Toolbar } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import styles from './styles';
-import { Search, Sidebar } from '../index';
-import { ColorModeContext } from '../../utils/ToggleColorMode';
 import { setUser } from '../../features/auth';
 import { createSessionId, moviesApi } from '../../utils';
+import { ColorModeContext } from '../../utils/ToggleColorMode';
+import { Search, Sidebar } from '../index';
+import styles from './styles';
 
 function Navbar({ onLoginClick }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width:600px)');
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const sx = styles(theme);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -36,7 +28,6 @@ function Navbar({ onLoginClick }) {
 
   useEffect(() => {
     const logInUser = async () => {
-      // Proceed if we have either a request_token (fresh login) or a stored session_id (returning user)
       if (!token && !sessionIdFromLocalStorage) return;
 
       try {
@@ -53,14 +44,28 @@ function Navbar({ onLoginClick }) {
     logInUser();
   }, [token, sessionIdFromLocalStorage, dispatch]);
 
+  const handleLoginClick = () => {
+    if (typeof onLoginClick === 'function') {
+      onLoginClick();
+      return;
+    }
+
+    const from = `${location.pathname}${location.search}${location.hash}`;
+    sessionStorage.setItem('auth_from', from);
+    navigate('/login', { state: { from } });
+  };
 
   const renderAuthButton = () => {
     // Recomovie
     if (recomovieUser) {
       return (
-        <Button color="inherit" component={Link} to={`/recomovie-profile/${recomovieUser.id}`}>
-          {!isMobile && 'My Profile '}
-          <Avatar sx={{ width: 30, height: 30 }}>{recomovieUser.username[0].toUpperCase()}</Avatar>
+        <Button
+          startIcon={<Avatar>{recomovieUser.username[0].toUpperCase()}</Avatar>}
+          color="inherit"
+          component={Link}
+          to={`/recomovie-profile/${recomovieUser.id}`}
+        >
+          My Movies
         </Button>
       );
     }
@@ -68,23 +73,28 @@ function Navbar({ onLoginClick }) {
     // TMDb
     if (isAuthenticated && user) {
       return (
-        <Button color="inherit" component={Link} to={`/profile/${user.id}`}>
-          {!isMobile && 'My Movies '}
-          <Avatar
-            sx={{ width: 30, height: 30 }}
-            src={
-              user?.avatar?.tmdb?.avatar_path
-                ? `https://www.themoviedb.org/t/p/w64_and_h64_face${user.avatar.tmdb.avatar_path}`
-                : undefined
-            }
-          />
+        <Button
+          color="inherit"
+          startIcon={
+            <Avatar
+              src={
+                user?.avatar?.tmdb?.avatar_path
+                  ? `https://www.themoviedb.org/t/p/w64_and_h64_face${user.avatar.tmdb.avatar_path}`
+                  : undefined
+              }
+            />
+          }
+          component={Link}
+          to={`/tmdb-profile/${user.id}`}
+        >
+          My Movies
         </Button>
       );
     }
 
     // Chưa login
     return (
-      <Button color="inherit" startIcon={<AccountCircle />} onClick={onLoginClick}>
+      <Button color="inherit" startIcon={<AccountCircle />} onClick={handleLoginClick}>
         LOGIN
       </Button>
     );
@@ -94,38 +104,23 @@ function Navbar({ onLoginClick }) {
     <>
       <AppBar position="fixed" sx={sx.appBar}>
         <Toolbar sx={sx.toolbar}>
-          {/* Mobile menu */}
-          {isMobile && (
-            <IconButton onClick={() => setMobileOpen(true)}>
-              <Menu />
-            </IconButton>
-          )}
-
           {/* Toggle theme */}
-          <IconButton onClick={colorMode.toggleColorMode}>
+          <IconButton onClick={colorMode.toggleColorMode} color="inherit">
             {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
 
-          {/* Search desktop */}
-          {!isMobile && <Search />}
+          {/* Search */}
+          <Search />
 
           {/* LOGIN / PROFILE */}
           {renderAuthButton()}
-
-          {/* Search mobile */}
-          {isMobile && <Search />}
         </Toolbar>
       </AppBar>
 
       {/* Sidebar */}
       <Box component="nav" sx={sx.drawer}>
-        <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
-          open={isMobile ? mobileOpen : true}
-          onClose={() => setMobileOpen(false)}
-          slotProps={{ paper: { sx: sx.drawerPaper } }}
-        >
-          <Sidebar setMobileOpen={setMobileOpen} />
+        <Drawer variant="permanent" slotProps={{ paper: { sx: sx.drawerPaper } }}>
+          <Sidebar />
         </Drawer>
       </Box>
     </>
