@@ -72,20 +72,28 @@ function MovieInfo() {
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
   const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
 
-  // ---- initial flags: TMDb provider ----
-  useEffect(() => {
-    if (!isTmdb || !favoriteMovies || !data?.id) return;
-    setIsMovieFavorited(
-      !!favoriteMovies?.results?.find((movie) => movie?.id === data?.id),
-    );
-  }, [favoriteMovies, data, isTmdb]);
+  // ---- initial flags: TMDb provider (DB-backed lists) ----
+useEffect(() => {
+  if (!isTmdb || !favoriteMovies || !movieId) return;
 
-  useEffect(() => {
-    if (!isTmdb || !watchlistMovies || !data?.id) return;
-    setIsMovieWatchlisted(
-      !!watchlistMovies?.results?.find((movie) => movie?.id === data?.id),
-    );
-  }, [watchlistMovies, data, isTmdb]);
+  // results come from /tmdbaccounts/{id}/list (DB)
+  // where each item has id = MovieId in your DB
+  const isFav = !!favoriteMovies?.results?.some(
+    (m) => m.id === movieId || m.movieId === movieId,
+  );
+
+  setIsMovieFavorited(isFav);
+}, [isTmdb, favoriteMovies, movieId]);
+
+useEffect(() => {
+  if (!isTmdb || !watchlistMovies || !movieId) return;
+
+  const isInWatchlist = !!watchlistMovies?.results?.some(
+    (m) => m.id === movieId || m.movieId === movieId,
+  );
+
+  setIsMovieWatchlisted(isInWatchlist);
+}, [isTmdb, watchlistMovies, movieId]);
 
   // ---- initial flags: Recomovie provider (personal DB lists) ----
   useEffect(() => {

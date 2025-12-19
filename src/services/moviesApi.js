@@ -73,15 +73,19 @@ export const moviesApi = createApi({
       },
     }),
 
-    // ---------------- TMDb account lists: GET /api/TMDbAccounts/{id}/list
+    // TMDb account lists: GET /api/TMDbAccounts/{id}/list
+    // TMDb account lists: GET https://localhost:7013/api/TMDbAccounts/{id}/list
     getList: builder.query({
-      query: ({ listName, accountId, sessionId, page = 1 }) => {
+      query: ({ listName, accountId, page = 1 }) => {
         const params = new URLSearchParams();
         if (listName) params.set('listName', listName);
         params.set('page', page.toString());
-        if (sessionId) params.set('sessionId', sessionId);
 
-        return `/TMDbAccounts/${accountId}/list?${params.toString()}`;
+        return {
+          // absolute URL -> ignores TMDb baseUrl and hits your ASP.NET API
+          url: `https://localhost:7013/api/TMDbAccounts/${accountId}/list?${params.toString()}`,
+          method: 'GET',
+        };
       },
     }),
   }),

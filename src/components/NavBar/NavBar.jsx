@@ -60,7 +60,7 @@ function Navbar() {
         let sessionId = sessionIdFromLocalStorage;
 
         if (!sessionId) {
-          sessionId = await createSessionId();   // now calls TMDb directly
+          sessionId = await createSessionId();   // still hits TMDb
         }
 
         if (!sessionId) {
@@ -68,14 +68,33 @@ function Navbar() {
           return;
         }
 
-        // 🔹 Fetch TMDb account info directly
+        // 1) Fetch TMDb account info
         const res = await fetch(
           `https://api.themoviedb.org/3/account?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${sessionId}`
         );
         const userData = await res.json();
 
-        // userData has { id, name, username, avatar, ... }
+        // 2) Update Redux (unchanged)
         dispatch(setUser(userData));
+
+        // 3) Remember TMDb account id (you clear this on logout)
+        localStorage.setItem('tmdb_account_id', String(userData.id));
+
+        // 4) Sync TMDb account into *your* DB
+        //    This creates/updates a row in dbo.TMDbAccounts
+        try {
+          await api.post('/TMDbAccounts', {
+            tmdbAccountId: userData.id,
+            username: userData.username || userData.name || 'tmdb-user',
+            sessionId,
+            // Favorites / Watchlist optional -> backend will start empty
+          });
+        } catch (err) {
+          console.error(
+            'Failed to sync TMDbAccount to backend:',
+            err.response?.data ?? err.message
+          );
+        }
       } catch (error) {
         console.error('Failed fetching TMDb account info:', error);
       }
@@ -83,6 +102,7 @@ function Navbar() {
 
     logInUser();
   }, [token, sessionIdFromLocalStorage, dispatch]);
+
 
   return (
     <>
