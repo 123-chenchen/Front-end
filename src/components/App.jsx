@@ -2,8 +2,8 @@ import { Box, CssBaseline } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Route, Routes } from 'react-router-dom';
 import Approved from '../features/Approved';
-import LoginPage from './FirstStage/Login';
-import Register from './FirstStage/Register';
+import Login from './Account/Login';
+import Register from './Account/Register';
 import { ActorInfo, MovieInfo, Movies, Profile } from './index';
 import Navbar from './Navbar/Navbar';
 import styles from './styles';
@@ -52,30 +52,9 @@ function App() {
         }
       />
 
-      <Route
-        path="/login"
-        element={
-          <Layout>
-            <LoginPage />
-          </Layout>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-         
-            <Register />
-        
-        }
-      />
-      <Route
-        path="/approved"
-        element={
-          
-            <Approved />
-        
-        }
-      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/approved" element={<Approved />} />
 
       <Route
         path="/tmdb-profile/:id"
