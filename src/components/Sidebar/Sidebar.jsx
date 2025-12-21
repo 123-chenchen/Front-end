@@ -1,28 +1,14 @@
-import React, { useEffect } from 'react';
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListSubheader,
-  ListItemIcon,
-  Box,
-  CircularProgress,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Divider,ListItem, ListItemIcon, ListItemText, ListSubheader, Typography,} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-import styles from './styles';
-import { useGetGenresQuery } from '../../services/moviesApi';
-import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 import genreIcons from '../../assets/genres';
-
-// ⚠️ SỬA ĐƯỜNG DẪN LOGO THÀNH assets
-// Giả sử file nằm ở: src/assets/logo/Filmpire.jpg
-import redLogo from '../../assets/logo/redlogo.svg';
-import blueLogo from '../../assets/logo/bluelogo.svg';
-// Nếu sau này bạn có 2 file khác nhau, chỉ cần đổi tên file và đường dẫn là được
+import blueLogo from '../../assets/logo/bluelogo.png';
+import redLogo from '../../assets/logo/redlogo.png';
+import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
+import { useGetGenresQuery } from '../../services/moviesApi';
+import styles from './styles';
 
 const categories = [
   { label: 'Popular', value: 'popular' },
@@ -30,88 +16,100 @@ const categories = [
   { label: 'Upcoming', value: 'upcoming' },
 ];
 
-function Sidebar({ setMobileOpen }) {
+function Sidebar() {
   const theme = useTheme();
   const sx = styles(theme);
   const dispatch = useDispatch();
-  const { data, isFetching } = useGetGenresQuery();
-  const { genreIdOrCategoryName } = useSelector(
-    (state) => state.currentGenreOrCategory,
-  );
 
-  useEffect(() => {
-    // Đóng sidebar mobile khi đổi category / genre
-    setMobileOpen(false);
-  }, [genreIdOrCategoryName, setMobileOpen]);
+  // backend returns: { genres: [{ id, name }] }
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useGetGenresQuery();
+
+  const genres = Array.isArray(data?.genres)
+    ? data.genres
+    : Array.isArray(data)
+      ? data
+      : [];
 
   const logo = theme.palette.mode === 'light' ? blueLogo : redLogo;
 
+  const handlePick = (value) => {
+    dispatch(selectGenreOrCategory(value));
+  };
+
   return (
     <>
-      {/* Logo */}
-      <Link to="/" style={sx.imageLink}>
-        <img
-          style={sx.image}
-          src={logo}
-          alt="Filmpire Logo"
-        />
+      <Link to="/">
+        <img style={sx.image} src={logo} alt="logo" />
       </Link>
 
       <Divider />
 
       {/* Categories */}
-      <List>
-        <ListSubheader>Categories</ListSubheader>
-        {categories.map(({ label, value }) => (
-          <Link key={value} style={sx.links} to="/">
-            <ListItem
-              button
-              onClick={() => dispatch(selectGenreOrCategory(value))}
-            >
-              <ListItemIcon>
-                <img
-                  src={genreIcons[label.toLowerCase()]}
-                  style={sx.genreImages}
-                  height={30}
-                  alt={label}
-                />
-              </ListItemIcon>
-              <ListItemText primary={label} />
-            </ListItem>
-          </Link>
-        ))}
-      </List>
+      <ListSubheader>Categories</ListSubheader>
+      {categories.map(({ label, value }) => (
+        <Link key={value} style={sx.links} to="/">
+          <ListItem button onClick={() => handlePick(value)}>
+            <ListItemIcon>
+              <img
+                src={genreIcons[label.toLowerCase()]}
+                style={sx.genreImages}
+                alt={label}
+              />
+            </ListItemIcon>
+            <ListItemText primary={label} />
+          </ListItem>
+        </Link>
+      ))}
 
       <Divider />
 
       {/* Genres */}
-      <List>
-        <ListSubheader>Genres</ListSubheader>
-        {isFetching ? (
-          <Box display="flex" justifyContent="center">
-            <CircularProgress size="4rem" />
-          </Box>
-        ) : (
-          data?.genres?.map(({ name, id }) => (
-            <Link key={name} style={sx.links} to="/">
-              <ListItem
-                button
-                onClick={() => dispatch(selectGenreOrCategory(id))}
-              >
-                <ListItemIcon>
-                  <img
-                    src={genreIcons[name.toLowerCase()]}
-                    style={sx.genreImages}
-                    height={30}
-                    alt={name}
-                  />
-                </ListItemIcon>
-                <ListItemText primary={name} />
-              </ListItem>
-            </Link>
-          ))
-        )}
-      </List>
+      <ListSubheader>Genres</ListSubheader>
+
+      {isLoading && (
+        <Typography sx={{ px: 2, py: 1 }} variant="body2">
+          Loading genres...
+        </Typography>
+      )}
+
+      {isError && (
+        <Typography sx={{ px: 2, py: 1 }} variant="body2">
+          Failed to load genres.
+        </Typography>
+      )}
+
+      {!isLoading && !isError && genres.length === 0 && (
+        <Typography sx={{ px: 2, py: 1 }} variant="body2">
+          No genres found.
+        </Typography>
+      )}
+
+      {genres.map((g) => {
+        const name = g?.name ?? '';
+        const id = g?.id;
+
+        const iconKey = name.toLowerCase().replace(/\s+/g, '_');
+        const iconSrc = genreIcons[iconKey] ?? genreIcons[name.toLowerCase()] ?? genreIcons.action;
+
+        return (
+          <Link key={id ?? name} style={sx.links} to="/">
+            <ListItem button onClick={() => handlePick(id)}>
+              <ListItemIcon>
+                <img
+                  src={iconSrc}
+                  style={sx.genreImages}
+                  alt={name}
+                />
+              </ListItemIcon>
+              <ListItemText primary={name} />
+            </ListItem>
+          </Link>
+        );
+      })}
     </>
   );
 }

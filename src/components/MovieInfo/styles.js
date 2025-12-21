@@ -1,73 +1,102 @@
 export default function styles(theme) {
   return {
-   poster: {
-  borderRadius: '20px',
-  boxShadow: '0.5em 1em 1em rgb(64, 64, 70)',
-  width: '80%',
-  maxWidth: '350px',
-  [theme.breakpoints.down('md')]: {
-    margin: '0 auto',
-    width: '60%',
-  },
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    height: '350px',
-    margin: '0 auto 30px auto',
-  },
-},
-
+    image: {
+      width: '100%',
+      maxWidth: '300px',
+      height: '450px',
+      objectFit: 'cover',
+      borderRadius: '20px',
+      boxShadow: '0.5em 0.5em 1em',
+    },
+    layout: {
+      display: 'flex',
+      gap: 8,
+    },
     genresContainer: {
       display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
       gap: theme.spacing(4),
     },
 
     genreImage: {
       filter: theme.palette.mode === 'dark' ? 'invert(1)' : undefined,
       marginRight: '10px',
+      height: 30,
+      transition: 'transform 0.25s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.05)',
+      },
     },
 
     castImage: {
-      width: '100%',
-      maxWidth: '7em',
-      height: '8em',
+      width: '80%',
+      height: '150px',
       objectFit: 'cover',
-      borderRadius: '10px',
+      borderRadius: '12px',
     },
 
     links: {
       display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
       textDecoration: 'none',
-      [theme.breakpoints.down('sm')]: {
-        padding: '0.5rem 1rem',
-      },
-    },
-
-    buttonContainer: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      width: '100%',
-      [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column',
-      },
+      color: 'inherit',
     },
 
     modal: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '70vw',
+      height: '70vh',
     },
 
     video: {
-      width: '50%',
-      height: '50%',
-      [theme.breakpoints.down('sm')]: {
-        width: '90%',
-        height: '90%',
+      width: '100%',
+      height: '100%',
+    },
+
+    line: {
+      width: '3px',
+      bgcolor:
+        theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
+    },
+
+    castContainer: {
+      width: 120,
+      height: 200,
+      display: 'flex',
+      flexDirection: 'column',
+      transition: 'transform 0.25s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.05)',
       },
+    },
+    nameCast: {
+      mt: 1,
+      variant: 'subtitle1',
+    },
+
+    button: {
+      bgcolor:
+        theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
+      borderRadius: '40px',
+      my: 2.5,
+      transition: 'transform 0.25s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.05)',
+      },
+    },
+
+    castText: {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      p: 0.5,
+    },
+
+    imdb: {
+      color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,
+      borderRadius: '40px',
     },
   };
 }

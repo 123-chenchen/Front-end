@@ -1,9 +1,14 @@
-export default function styles(theme) {
+export default function styles() {
   return {
-    moviesContainer: {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-  gap: theme.spacing(1),
+    grid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    },
+    box: {
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
+      display: 'flex',
     },
   };
 }

@@ -1,22 +1,36 @@
-// src/components/MovieList/MovieList.jsx
-import React from 'react';
-import { Grid } from '@mui/material';
-
-import { useTheme } from '@mui/material/styles';
-
-import Movie from '../Movie/Movie';
+import { Grid, Fade, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Movie } from '../index';
 import styles from './styles';
+import { useTheme } from '@mui/material/styles';
 
 function MovieList({ movies, excludeFirst }) {
   const theme = useTheme();
   const sx = styles(theme);
 
+  const [mounted, setMounted] = useState(false); 
   const startIndex = excludeFirst ? 1 : 0;
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!movies?.results?.length) return null; 
+
   return (
-    <Grid container sx={sx.moviesContainer} spacing={2}>
+    <Grid container sx={sx.grid}>
       {movies.results.slice(startIndex).map((movie, i) => (
-        <Movie key={movie.id} movie={movie} i={i} />
+        <Fade
+          key={movie.id}
+          in={mounted}
+          appear
+          mountOnEnter
+          timeout={300 + i * 120}
+        >
+          <Box sx={sx.box}>
+            <Movie movie={movie} i={i} />
+          </Box>
+        </Fade>
       ))}
     </Grid>
   );
