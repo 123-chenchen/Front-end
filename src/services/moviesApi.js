@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const rawBase =
-  process.env.REACT_APP_BACKEND_BASE_URL || 'https://localhost:7013/api';
+  process.env.REACT_APP_BACKEND_BASE_URL || 'http://45.77.248.87:8081/api';
 
 const baseUrl = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
