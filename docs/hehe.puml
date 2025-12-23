@@ -1,0 +1,58 @@
+@startuml
+title RecoMovie – Navigation Diagram (Site Map)
+
+skinparam activityStyle rectangle
+skinparam shadowing false
+skinparam ArrowColor #444
+skinparam ActivityBorderColor #333
+
+' ======================
+' START
+' ======================
+[*] --> Home
+
+' ======================
+' HOME
+' ======================
+Home : Home Page\n(/)
+Home --> MovieDetail : Click movie poster
+Home --> Search : Search movie
+Home --> Login : Click Login (Navbar)
+Home --> Profile : Click Avatar
+Home --> Home : Select Genre / Category
+
+' ======================
+' AUTH
+' ======================
+Login : Login Page\n(/login)
+Register : Register Page\n(/register)
+ForgotPassword : Forgot Password\n(/forgot-password)
+
+Login --> Home : Login success
+Login --> Profile : Login success
+Login --> Register : Register
+Login --> ForgotPassword : Forgot password
+
+Register --> Login : Register success
+ForgotPassword --> Login : Reset password
+
+' ======================
+' MOVIE
+' ======================
+MovieDetail : Movie Detail\n(/movie/:id)
+Actor : Actor Page\n(/actors/:id)
+
+MovieDetail --> Actor : Click actor
+MovieDetail --> Home : Back to Home
+
+Actor --> MovieDetail : Back to Movie
+
+' ======================
+' PROFILE
+' ======================
+Profile : Profile Page\n(/profile/:id)
+
+Profile --> MovieDetail : Select movie
+Profile --> Home : Back to Home
+
+@enduml
