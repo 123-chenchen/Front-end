@@ -8,7 +8,7 @@ import Register from './Account/Register';
 import ResetPassword from './Account/ResetPassword';
 import VerifyEmail from './Account/VerifyEmail';
 import { ActorInfo, MovieInfo, Movies, Profile } from './index';
-import Navbar from './NavBar/Navbar';
+import Navbar from './Navbar/Navbar';
 import styles from './style';
 
 function Layout({ children }) {
