@@ -1,16 +1,16 @@
 import LiveTvIcon from '@mui/icons-material/LiveTv';
+import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import background from '../../assets/background/background.png';
 import blueLogo from '../../assets/logo/3.png';
 import redLogo from '../../assets/logo/4.png';
 import { loginWithRecomovie } from '../../features/recomovielogin';
 import { fetchToken } from '../../utils';
 import styles from './styles';
-import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
 export default function LoginPage({ onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -120,13 +120,15 @@ export default function LoginPage({ onClose }) {
               to="/register"
               sx={{ ...sx.text, zIndex: 10, position: 'relative' }}
             >
-               &nbsp; Sign up
+              &nbsp; Sign up
             </Typography>
-            <Typography>
-              <Link to="/reset-password" sx={sx.text} style={{ textDecoration: 'none' }}>
-                Forgot password?
-              </Link>
-            </Typography>
+          </Typography>
+          <Typography
+            component={RouterLink}
+            to="/reset-password"
+            sx={{ ...sx.text, zIndex: 10, position: 'relative' }}
+          >
+            &nbsp; Forgot password?
           </Typography>
         </Stack>
       </Box>

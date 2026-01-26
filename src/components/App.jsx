@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import Approved from '../features/Approved';
 import Login from './Account/Login';
 import Register from './Account/Register';
+import ResetPassword from './Account/ResetPassword';
 import { ActorInfo, MovieInfo, Movies, Profile } from './index';
 import Navbar from './Navbar/Navbar';
 import styles from './styles';
@@ -54,6 +55,7 @@ function App() {
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/approved" element={<Approved />} />
 
       <Route

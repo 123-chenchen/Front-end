@@ -1,13 +1,13 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {Link as RouterLink} from 'react-router-dom';
+import {Link as RouterLink } from 'react-router-dom';
 import background from '../../assets/background/background.png';
 import blueLogo from '../../assets/logo/3.png';
 import redLogo from '../../assets/logo/4.png';
-import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
+import LiveTvIcon from '@mui/icons-material/LiveTv';
 import styles from './styles';
 
-export default function Register({ onClose }) {
+export default function ResetPassword({ onClose }) {
   const theme = useTheme();
   const sx = styles(theme);
   const logo = theme.palette.mode === 'dark' ? redLogo : blueLogo;
@@ -29,7 +29,7 @@ export default function Register({ onClose }) {
       <Box sx={sx.content}>
         <Stack spacing={2}>
           <Typography variant="h4" fontWeight="bold">
-            Sign In
+            Reset Password
           </Typography>
 
           {/* RECOMOVIE LOGIN */}
@@ -41,14 +41,15 @@ export default function Register({ onClose }) {
 
           <Button
             variant="outlined"
-            sx={sx.button}
             color={
               theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main
             }
-            startIcon={<LocalMoviesIcon />}
+            sx={sx.button}
+            startIcon={<LiveTvIcon />}
           >
-            <Typography sx={sx.text}>Sign up Recomovie</Typography>
+            <Typography sx={sx.text}>Reset</Typography>
           </Button>
+
         </Stack>
         <Typography>
             Already have an account?

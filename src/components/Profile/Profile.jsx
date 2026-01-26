@@ -1,73 +1,138 @@
-import { Box, Button, Typography, Avatar } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Typography } from '@mui/material';
 import { ExitToApp } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
 import List from './List';
-import { useGetListQuery } from '../../services/TMDB';
+import { useGetListQuery } from '../../services/moviesApi';
+import api from '../../utils/api';
+
+function safeJsonParse(value) {
+  try {
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+}
 
 function Profile() {
-  // ===== TMDB STATE =====
-  const { user: tmdbUser } = useSelector((state) => state.user);
-  const sessionId = localStorage.getItem('session_id');
+  const { id } = useParams();
 
-  // ===== RECOMOVIE STATE =====
-  const recomovieUser = JSON.parse(localStorage.getItem('recomovie_user'));
-
-  const isTMDB = Boolean(tmdbUser?.id && sessionId);
-  const isRecomovie = Boolean(recomovieUser);
-
-  // ===== TMDB QUERIES =====
-  const { data: favoriteMovies, refetch: refetchFavorites } = useGetListQuery(
-    {
-      listName: 'favorite/movies',
-      accountId: tmdbUser?.id,
-      sessionId,
-      page: 1,
-    },
-    { skip: !isTMDB }
+  const recomovieUser = useMemo(
+    () => safeJsonParse(localStorage.getItem('recomovie_user')),
+    [],
   );
 
-  const { data: watchlistMovies, refetch: refetchWatchlist } = useGetListQuery(
-    {
-      listName: 'watchlist/movies',
-      accountId: tmdbUser?.id,
-      sessionId,
-      page: 1,
-    },
-    { skip: !isTMDB }
+  const isRecomovie = !!recomovieUser;
+
+  // For TMDb profile route, go to /tmdb-profile/:id
+  const tmdbAccountId = !isRecomovie
+    ? Number(id || localStorage.getItem('tmdb_account_id'))
+    : null;
+
+  // -----------------------------
+  // TMDb lists (PUBLIC): GET /api/TMDbAccounts/{id}/list
+  // -----------------------------
+  const skipTmdb = isRecomovie || !tmdbAccountId;
+
+  const {
+    data: tmdbFavoriteMoviesData,
+    isFetching: isFetchingTmdbFavorites,
+    isError: isTmdbFavoritesError,
+    refetch: refetchTmdbFavorites,
+  } = useGetListQuery(
+    { listName: 'favorite/movies', accountId: tmdbAccountId, page: 1 },
+    { skip: skipTmdb, refetchOnMountOrArgChange: true },
   );
+
+  const {
+    data: tmdbWatchlistMoviesData,
+    isFetching: isFetchingTmdbWatchlist,
+    isError: isTmdbWatchlistError,
+    refetch: refetchTmdbWatchlist,
+  } = useGetListQuery(
+    { listName: 'watchlist/movies', accountId: tmdbAccountId, page: 1 },
+    { skip: skipTmdb, refetchOnMountOrArgChange: true },
+  );
+
+  // keep old variable names so UI doesn't break
+  const isFetchingTmdbList = isFetchingTmdbFavorites || isFetchingTmdbWatchlist;
+  const isTmdbListError = isTmdbFavoritesError || isTmdbWatchlistError;
+
+  // old code used refetchTmdbList?.()
+  const refetchTmdbList = () => {
+    refetchTmdbFavorites?.();
+    refetchTmdbWatchlist?.();
+  };
+
+  // shape UI expects: { results: [...] }
+  const tmdbFavoriteMovies = tmdbFavoriteMoviesData ?? { results: [] };
+  const tmdbWatchlistMovies = tmdbWatchlistMoviesData ?? { results: [] };
+
+  // If tmdbAccountId changes, force refresh (same behavior as old code)
+  useEffect(() => {
+    if (skipTmdb) return;
+    refetchTmdbList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipTmdb, tmdbAccountId]);
+
+  // -----------------------------
+  // Recomovie lists: /me/movies/...
+  // -----------------------------
+  const [recomovieFavoriteMovies, setRecomovieFavoriteMovies] = useState({ results: [] });
+  const [recomovieWatchlistMovies, setRecomovieWatchlistMovies] = useState({ results: [] });
+  const [isFetchingRecomovie, setIsFetchingRecomovie] = useState(false);
 
   useEffect(() => {
-    if (isTMDB) {
-      refetchFavorites();
-      refetchWatchlist();
+    if (!isRecomovie) return;
+
+    const loadLists = async () => {
+      try {
+        setIsFetchingRecomovie(true);
+        const [favRes, watchRes] = await Promise.all([
+          api.get('/me/movies/favorites'),
+          api.get('/me/movies/watchlist'),
+        ]);
+
+        setRecomovieFavoriteMovies({ results: favRes.data || [] });
+        setRecomovieWatchlistMovies({ results: watchRes.data || [] });
+      } catch (err) {
+        console.error('Failed to load personal lists:', err.response?.data ?? err.message);
+        setRecomovieFavoriteMovies({ results: [] });
+        setRecomovieWatchlistMovies({ results: [] });
+      } finally {
+        setIsFetchingRecomovie(false);
+      }
+    };
+
+    loadLists();
+  }, [isRecomovie]);
+
+  // -----------------------------
+  // Logout
+  // -----------------------------
+  const logout = () => {
+    if (isRecomovie) {
+      localStorage.removeItem('recomovie_token');
+      localStorage.removeItem('recomovie_user');
+      window.location.href = '/';
+      return;
     }
-  }, [isTMDB, refetchFavorites, refetchWatchlist]);
 
-  // ===== LOGOUT (CHUNG) =====
-  /*const logout = () => {
-    localStorage.removeItem('session_id');
     localStorage.removeItem('request_token');
-    localStorage.removeItem('recomovie_token');
-    localStorage.removeItem('recomovie_user');
-    window.location.href = '/';
-  };*/
-  // ===== LOGOUT TMDB =====
-  const logoutTMDB = () => {
     localStorage.removeItem('session_id');
-    localStorage.removeItem('request_token');
+    localStorage.removeItem('tmdb_account_id');
     window.location.href = '/';
   };
 
-  // ===== LOGOUT RECOMOVIE =====
-  const logoutRecomovie = () => {
-    localStorage.removeItem('recomovie_token');
-    localStorage.removeItem('recomovie_user');
-    window.location.href = '/';
-  };
+  // -----------------------------
+  // Pick active lists for UI
+  // -----------------------------
+  const favoriteMovies = isRecomovie ? recomovieFavoriteMovies : tmdbFavoriteMovies;
+  const watchlistMovies = isRecomovie ? recomovieWatchlistMovies : tmdbWatchlistMovies;
 
-  // ===== CHƯA LOGIN =====
-  if (!isTMDB && !isRecomovie) {
+  // Not logged in states
+  if (isRecomovie && !recomovieUser) {
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h5">Not logged in</Typography>
@@ -75,66 +140,51 @@ function Profile() {
     );
   }
 
-  // ===== USER INFO (CHUNG UI) =====
-  const displayName = isTMDB ? tmdbUser.username : recomovieUser.username;
+  if (!isRecomovie && !tmdbAccountId) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h5">Not logged in</Typography>
+      </Box>
+    );
+  }
+
+  const isLoading = isRecomovie ? isFetchingRecomovie : isFetchingTmdbList;
+  const hasNoLists = !favoriteMovies?.results?.length && !watchlistMovies?.results?.length;
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        {isTMDB && (
-          <Button
-            color="inherit"
-            onClick={() => {
-              logoutTMDB();
-              logoutRecomovie();
-            }}
-          >
-            Logout &nbsp; <ExitToApp />
-          </Button>
-        )}
+    <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h4" gutterBottom>
+          My Profile
+        </Typography>
+
+        <Button color="inherit" onClick={logout}>
+          Logout &nbsp; <ExitToApp />
+        </Button>
       </Box>
 
-      {/* ===== TMDB CONTENT ===== */}
-      {isTMDB && (
-        <>
+      {!isRecomovie && isTmdbListError && (
+        <Typography variant="body1">
+          Failed to load TMDb lists from backend.
+        </Typography>
+      )}
+
+      {isLoading ? (
+        <Typography variant="h6">Loading...</Typography>
+      ) : hasNoLists ? (
+        <Typography variant="h5">
+          Add favourite or watchlist movies to see them here!
+        </Typography>
+      ) : (
+        <Box>
           {favoriteMovies?.results?.length > 0 && (
-            <>
-              <Typography variant="h5" gutterBottom>
-                Favorite Movies
-              </Typography>
-              <List movies={favoriteMovies} />
-            </>
+            <List title="Favorite Movies" movies={favoriteMovies} />
           )}
 
           {watchlistMovies?.results?.length > 0 && (
-            <>
-              <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-                Watchlist
-              </Typography>
-              <List movies={watchlistMovies} />
-            </>
+            <List title="Watchlist" movies={watchlistMovies} />
           )}
-        </>
-      )}
-
-      {/* ===== RECOMOVIE CONTENT ===== */}
-      {isRecomovie && (
-        <>
-          <Typography variant="h5" gutterBottom>
-            Favorite Movies
-          </Typography>
-          <Typography variant="body1" sx={{ opacity: 0.7, mb: 4 }}>
-            (Feature coming soon — Database is in progress…)
-          </Typography>
-
-          <Typography variant="h5" gutterBottom>
-            Watchlist
-          </Typography>
-          <Typography variant="body1" sx={{ opacity: 0.7 }}>
-            (Feature coming soon — Database is in progress…)
-          </Typography>
-        </>
+        </Box>
       )}
     </Box>
   );
