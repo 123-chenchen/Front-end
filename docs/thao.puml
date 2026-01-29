@@ -1,0 +1,25 @@
+@startuml
+skinparam activityStyle rectangle
+
+[*] --> Movies
+
+Movies --> MovieInfo : Select movie
+Movies --> Movies : Search / Filter
+Movies --> Login : Login
+Movies --> Profile : View profile
+
+Login --> Movies : Login success
+Login --> Register : Sign up
+
+Register --> Login : Register success
+
+MovieInfo --> ActorInfo : View actor
+MovieInfo --> MovieInfo : View recommendation
+MovieInfo --> Movies : Back to movies
+
+Profile --> MovieInfo : Select favorite movie
+Profile --> Movies : Back to movies
+
+ActorInfo --> MovieInfo : Back to movie
+
+@enduml

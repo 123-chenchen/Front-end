@@ -2,14 +2,14 @@ import { Box, CssBaseline } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Route, Routes } from 'react-router-dom';
 import Approved from '../features/Approved';
+import ForgotPassword from './Account/ForgotPassword';
 import Login from './Account/Login';
 import Register from './Account/Register';
+import ResetPassword from './Account/ResetPassword';
 import VerifyEmail from './Account/VerifyEmail';
 import { ActorInfo, MovieInfo, Movies, Profile } from './index';
 import Navbar from './Navbar/Navbar';
 import styles from './style';
-import ForgotPassword from './Account/ForgotPassword';
-import ResetPassword from './Account/ResetPassword';
 
 function Layout({ children }) {
   const theme = useTheme();
