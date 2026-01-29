@@ -12,6 +12,7 @@ function Movie({ movie }) {
       <Tooltip title={`${movie.title} ${movie.vote_average.toFixed(1)} / 10`} arrow placement="top">
         <MuiLink component={RouterLink} sx={sx.movie} to={`/movie/${movie.id}`}>
           <img
+            loading="lazy"
             src={
               movie.poster_path
                 ? `https://image.tmdb.org/t/p/w185/${movie.poster_path}`

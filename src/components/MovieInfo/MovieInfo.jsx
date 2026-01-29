@@ -17,7 +17,7 @@ import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 
 import {
   useGetMovieQuery,
-  useGetRecommendationsQuery,
+  useRecommendTmdbMutation,
   useGetListQuery,
 } from '../../services/moviesApi';
 
@@ -68,17 +68,68 @@ function MovieInfo() {
   // Movie from backend DB
   const { data, error, isFetching } = useGetMovieQuery(id);
 
-  // Recommendations (later update)
+  /* Recommendations (later update)
   const { data: recommendations } = useGetRecommendationsQuery(
     { movie_id: id },
     { skip: !id }
-  );
+  ); */
+
+  // ✅ Recommendations from your backend -> model API -> DB mapping
+  const [recommendTmdb, { data: recommendations, isLoading: recLoading, error: recError }] =
+    useRecommendTmdbMutation();
+
+  const [recoMovies, setRecoMovies] = useState([]);
 
   const posterPath = data?.poster_path ?? data?.posterPath ?? '';
   const imdbId = data?.imdb_id ?? data?.imdbId ?? '';
   const releaseDate = data?.release_date ?? data?.releaseDate ?? null;
   const originalLanguage = data?.original_language ?? data?.originalLanguage ?? '';
   const runtime = data?.runtime ?? data?.runTime ?? null;
+
+
+  // get tmdb id safely (works with different key names)
+  const seedTmdbId = useMemo(() => {
+    const raw =
+      data?.tmdb_id ??
+      data?.tmdbId ??
+      data?.tmdbID ??
+      data?.TmdbId ??
+      null;
+
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }, [data]);
+
+  const isLoggedIn =
+  !!localStorage.getItem('recomovie_token') || !!localStorage.getItem('session_id');
+
+  useEffect(() => {
+    if (!seedTmdbId || !isLoggedIn) {
+      setRecoMovies([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await recommendTmdb({
+          seed_tmdb_id: seedTmdbId,
+          k: 20,
+          exclude_tmdb_ids: [seedTmdbId],
+          w_content: 0.6,
+          w_cf: 0.4,
+        }).unwrap();
+
+        if (!cancelled) setRecoMovies(res?.results ?? []);
+      } catch (e) {
+        console.error("Recommend failed:", e);
+        if (!cancelled) setRecoMovies([]);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [seedTmdbId, recommendTmdb, isLoggedIn]);
 
   // UI state
   const [open, setOpen] = useState(false);
@@ -294,6 +345,10 @@ function MovieInfo() {
     );
   }
 
+  const websiteUrl =
+  (data?.homepage && String(data.homepage).trim()) ||
+  (seedTmdbId ? `https://www.themoviedb.org/movie/${seedTmdbId}` : null);
+
   return (
     <>
       <Box sx={sx.layout}>
@@ -440,7 +495,7 @@ function MovieInfo() {
           )}
 
           <Grid container justifyContent="space-between">
-            <Button variant="contained" sx={sx.button} target="_blank" href={data?.homepage}>
+            <Button variant="contained" sx={sx.button} component="a" target="_blank" rel="noopener noreferrer" href={websiteUrl ?? undefined} disabled={!websiteUrl}>
               WEBSITE
             </Button>
 
@@ -464,10 +519,33 @@ function MovieInfo() {
         <Typography variant="h4">You might also like...</Typography>
       </Box>
 
-      {recommendations ? (
-        <MovieList movies={recommendations?.results ?? recommendations} />
-      ) : (
-        <Typography>Sorry, nothing was found.</Typography>
+      {/* NOT LOGGED IN */}
+      {!isLoggedIn && (
+        <Alert severity="info" sx={{ my: 2 }}>
+          You need to log in to see the recommendation.
+        </Alert>
+      )}
+
+      {/* LOGGED IN ONLY */}
+      {isLoggedIn && recLoading && (
+        <Box display="flex" alignItems="center" gap={2} sx={{ my: 2 }}>
+          <CircularProgress size={20} />
+          <Typography>Loading recommendations...</Typography>
+        </Box>
+      )}
+
+      {isLoggedIn && !recLoading && recError && (
+        <Alert severity="warning" sx={{ my: 2 }}>
+          Failed to load recommendations.
+        </Alert>
+      )}
+
+      {isLoggedIn && !recLoading && !recError && (
+        recoMovies.length ? (
+          <MovieList movies={recoMovies} />
+        ) : (
+          <Typography>Sorry, nothing was found.</Typography>
+        )
       )}
 
       {data?.videos?.results?.length > 0 && (

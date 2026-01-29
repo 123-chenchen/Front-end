@@ -11,23 +11,26 @@ export default function Approved() {
   useEffect(() => {
     const finalizeTmdbSession = async () => {
       try {
-        // Create or reuse session id, then fetch account and store user
+        // ✅ use ONE key everywhere
         let sessionId = localStorage.getItem('session_id');
+        if (!sessionId) sessionId = await createSessionId();
+
         if (!sessionId) {
-          sessionId = await createSessionId();
+          navigate('/login', { replace: true });
+          return;
         }
 
-        if (sessionId) {
-          const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
-          dispatch(setUser(data));
-        }
+        const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
+        dispatch(setUser(data));
+
+        // optional but useful for refresh fallback
+        if (data?.id) localStorage.setItem('tmdb_account_id', String(data.id));
 
         const from = sessionStorage.getItem('auth_from') || '/';
         const safeFrom = from.startsWith('/login') ? '/' : from;
         sessionStorage.removeItem('auth_from');
         navigate(safeFrom, { replace: true });
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error('TMDb approval handling failed:', err);
         navigate('/login', { replace: true });
       }

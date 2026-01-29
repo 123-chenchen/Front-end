@@ -9,9 +9,23 @@ export const moviesApi = createApi({
   reducerPath: 'moviesApi',
   baseQuery: fetchBaseQuery({
     baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('recomovie_token');
-      if (token) headers.set('Authorization', `Bearer ${token}`);
+    prepareHeaders: (headers, { endpoint, getState }) => {
+      const state = getState();
+      const provider = state?.user?.provider;
+
+      const recomovieToken = localStorage.getItem("recomovie_token");
+      const tmdbSession = localStorage.getItem("session_id");
+
+      // ✅ only attach JWT if provider is recomovie
+      if (provider === "recomovie" && recomovieToken && ["recommendTmdb", "getList"].includes(endpoint)) {
+        headers.set("Authorization", `Bearer ${recomovieToken}`);
+      }
+
+      // ✅ attach TMDb session for TMDb users (or anytime it exists)
+      if (endpoint === "recommendTmdb" && tmdbSession) {
+        headers.set("X-TMDb-Session", tmdbSession);
+      }
+
       return headers;
     },
   }),
@@ -24,9 +38,10 @@ export const moviesApi = createApi({
     // GET /api/movies?category=&genreId=&search=&page=
     // props: { genreIdOrCategoryName, page, searchQuery }
     getMovies: builder.query({
-      query: ({ genreIdOrCategoryName, page = 1, searchQuery }) => {
+      query: ({ genreIdOrCategoryName, page = 1, searchQuery, pageSize = 20 }) => {
         const params = new URLSearchParams();
         params.set('page', String(page));
+        params.set('pageSize', String(pageSize));
 
         if (searchQuery) {
           params.set('search', searchQuery);
@@ -47,9 +62,23 @@ export const moviesApi = createApi({
       query: (id) => `movies/${id}`,
     }),
 
-    // on progress...
-    getRecommendations: builder.query({
-      query: ({ movie_id, list }) => `movies/${movie_id}/${list}`,
+    searchAll: builder.query({
+      query: ({ q, limit = 10 }) => {
+        const params = new URLSearchParams();
+        params.set("q", q);
+        params.set("limit", String(limit));
+        return `search?${params.toString()}`;
+      },
+    }),
+
+    // POST /api/recommendations/tmdb
+    // Calls ASP.NET backend, which calls model API, maps to dbo.Movies, returns movie cards
+    recommendTmdb: builder.mutation({
+      query: (body) => ({
+        url: 'recommendations/tmdb',
+        method: 'POST',
+        body,
+      }),
     }),
 
     // GET /api/actors/{id}
@@ -80,10 +109,11 @@ export const {
   useGetGenresQuery,
   useGetMoviesQuery,
   useGetMovieQuery,
-  useGetRecommendationsQuery,
+  useRecommendTmdbMutation,
   useGetActorQuery,
   useGetMoviesByActorIdQuery,
   useGetListQuery,
+  useSearchAllQuery,
 } = moviesApi;
 
 // alias so components importing the other name won’t crash

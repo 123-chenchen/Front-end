@@ -6,7 +6,7 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Attach JWT from personal login
+// ✅ Attach JWT only when it exists (Recomovie)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("recomovie_token");
@@ -18,17 +18,23 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Auto-logout on 401
+// ✅ Only force logout redirect if this is a Recomovie-auth user
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized — token may be invalid or expired.");
+      const token = localStorage.getItem("recomovie_token");
 
-      localStorage.removeItem("recomovie_token");
-      localStorage.removeItem("recomovie_user");
+      if (token) {
+        console.warn("Unauthorized — recomovie token may be invalid or expired.");
 
-      window.location.href = "/recomovie-login";
+        localStorage.removeItem("recomovie_token");
+        localStorage.removeItem("recomovie_user");
+
+        window.location.href = "/recomovie-login";
+      } else {
+        console.warn("401 received (non-recomovie request). No recomovie logout.");
+      }
     }
     return Promise.reject(error);
   }

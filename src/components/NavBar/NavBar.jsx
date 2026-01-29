@@ -24,16 +24,43 @@ function Navbar({ onLoginClick }) {
 
   const token = localStorage.getItem('request_token');
   const sessionIdFromLocalStorage = localStorage.getItem('session_id');
-  const recomovieUser = JSON.parse(localStorage.getItem('recomovie_user'));
+  const recomovieUser = (() => {
+    try {
+      const raw = localStorage.getItem('recomovie_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
 
-  useEffect(() => {
+
+  /* useEffect(() => {
     const logInUser = async () => {
       if (!token && !sessionIdFromLocalStorage) return;
 
       try {
         let sessionId = sessionIdFromLocalStorage;
         if (!sessionId) sessionId = await createSessionId();
+        if (!sessionId) return; // ✅ don’t call /account with null
+        const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
 
+        dispatch(setUser(data));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    logInUser();
+  }, [token, sessionIdFromLocalStorage, dispatch]); */
+
+  useEffect(() => {
+    const logInUser = async () => {
+      if (recomovieUser) return;
+
+      const sessionId = localStorage.getItem('session_id');
+      if (!sessionId) return; // ✅ only proceed if session already exists
+
+      try {
         const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
         dispatch(setUser(data));
       } catch (err) {
@@ -42,7 +69,7 @@ function Navbar({ onLoginClick }) {
     };
 
     logInUser();
-  }, [token, sessionIdFromLocalStorage, dispatch]);
+  }, [dispatch]);
 
   const handleLoginClick = () => {
     if (typeof onLoginClick === 'function') {
