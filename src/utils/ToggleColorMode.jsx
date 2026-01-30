@@ -23,6 +23,7 @@ export default function ToggleColorModeProvider({ children }) {
     []
   );
 
+
  const theme = useMemo(
   () =>
     createTheme({
@@ -33,6 +34,7 @@ export default function ToggleColorModeProvider({ children }) {
     }),
   [mode]
 );
+
 
   return (
     <ColorModeContext.Provider value={colorMode}>

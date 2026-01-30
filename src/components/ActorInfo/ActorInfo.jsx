@@ -8,7 +8,8 @@ import {
   useGetActorQuery,
   useGetMoviesByActorIdQuery,
 } from '../../services/moviesApi';   // backend RTK service
-import MovieList from '../MovieList/MovieList';
+import MovieList from '../RatedCards/RatedCards';
+import RatedCards from '../RatedCards/RatedCards';
 
 function Actors() {
   const theme = useTheme();
@@ -64,7 +65,7 @@ function Actors() {
         <Box sx={sx.line} />
         <Typography variant="h4">Movies</Typography>
       </Box>
-      {movies && <MovieList movies={movies} />}
+      {movies && <RatedCards movies={movies} />}
     </>
   );
 }

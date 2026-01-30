@@ -15,14 +15,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import background from '../../assets/background/background.png';
 import blueLogo from '../../assets/logo/bluelogo.png';
 import redLogo from '../../assets/logo/redlogo.png';
-import { ColorModeContext } from '../../utils/ToggleColorMode';
 import api from '../../utils/api';
 import styles from './style';
 
 export default function Register() {
   const theme = useTheme();
   const sx = styles(theme);
-  const colorMode = useContext(ColorModeContext);
   const navigate = useNavigate();
 
   const logo = theme.palette.mode === 'dark' ? redLogo : blueLogo;
@@ -118,19 +116,6 @@ export default function Register() {
     <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
       <Box sx={{ ...sx.overlay, pointerEvents: 'none' }} />
 
-      {/* Toggle theme */}
-      <IconButton
-        onClick={colorMode.toggleColorMode}
-        sx={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          zIndex: 2,
-          color: 'white',
-        }}
-      >
-        {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-      </IconButton>
 
       <Box sx={{ position: 'absolute', top: 20, left: 20 }}>
         <img src={logo} alt="Logo" style={{ height: 100 }} />
