@@ -2,20 +2,19 @@ import {
   Alert,
   Box,
   Button,
-  IconButton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import EmailIcon from '@mui/icons-material/Email';
+import EmailIcon from "@mui/icons-material/Email";
 import background from "../../assets/background/background.png";
 import blueLogo from "../../assets/logo/bluelogo.png";
 import redLogo from "../../assets/logo/redlogo.png";
 import api from "../../utils/api";
-import styles from "./style";
+import styles from "./styles";
 
 export default function ForgotPassword() {
   const theme = useTheme();
@@ -65,11 +64,11 @@ export default function ForgotPassword() {
   };
 
   return (
-     <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
+    <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
       <Box sx={sx.overlay} />
       <Box
         sx={{
-          position: 'absolute',
+          position: "absolute",
           top: 16,
           left: 16,
         }}
@@ -77,7 +76,7 @@ export default function ForgotPassword() {
         <img src={logo} alt="Logo" style={{ height: 100 }} />
       </Box>
 
-       <Box sx={sx.content}>
+      <Box sx={sx.content}>
         <Stack spacing={2}>
           <Typography variant="h4" fontWeight="bold">
             Reset Password
@@ -91,10 +90,14 @@ export default function ForgotPassword() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <Button disabled={!canSubmit} onClick={onSubmit}
-           variant="outlined"
+          <Button
+            disabled={!canSubmit}
+            onClick={onSubmit}
+            variant="outlined"
             color={
-              theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main
+              theme.palette.mode === "dark"
+                ? theme.palette.error.main
+                : theme.palette.primary.main
             }
             sx={sx.button}
             startIcon={<EmailIcon />}
@@ -102,18 +105,17 @@ export default function ForgotPassword() {
             <Typography sx={sx.text}>Send reset link</Typography>
           </Button>
 
-
-        <Typography>
-          Remember your password?
-          <Typography
-            component={RouterLink}
-            to="/login"
-            sx={{ ...sx.text, zIndex: 10, position: "relative" }}
-          >
-            &nbsp; Sign in
+          <Typography>
+            Remember your password?
+            <Typography
+              component={RouterLink}
+              to="/login"
+              sx={{ ...sx.text, zIndex: 10, position: "relative" }}
+            >
+              &nbsp; Sign in
+            </Typography>
           </Typography>
-        </Typography>
-                </Stack>
+        </Stack>
       </Box>
     </Box>
   );

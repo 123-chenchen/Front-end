@@ -22,11 +22,7 @@ function Sidebar() {
   const dispatch = useDispatch();
 
   // backend returns: { genres: [{ id, name }] }
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetGenresQuery();
+  const { data } = useGetGenresQuery();
 
   const genres = Array.isArray(data?.genres)
     ? data.genres
@@ -69,24 +65,6 @@ function Sidebar() {
 
       {/* Genres */}
       <ListSubheader>Genres</ListSubheader>
-
-      {isLoading && (
-        <Typography sx={{ px: 2, py: 1 }} variant="body2">
-          Loading genres...
-        </Typography>
-      )}
-
-      {isError && (
-        <Typography sx={{ px: 2, py: 1 }} variant="body2">
-          Failed to load genres.
-        </Typography>
-      )}
-
-      {!isLoading && !isError && genres.length === 0 && (
-        <Typography sx={{ px: 2, py: 1 }} variant="body2">
-          No genres found.
-        </Typography>
-      )}
 
       {genres.map((g) => {
         const name = g?.name ?? '';

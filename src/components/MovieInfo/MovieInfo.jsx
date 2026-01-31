@@ -1,28 +1,36 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import {Alert, Box, Button, Grid, Modal, Typography, CircularProgress,} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Grid,
+  Modal,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   Favorite as FavoriteIcon,
   FavoriteBorder as FavoriteBorderIcon,
   Movie as MovieIcon,
   MovieCreationOutlined as MovieCreationOutlinedIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
-import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import styles from './styles';
-import genreIcons from '../../assets/genres';
-import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
+import styles from "./styles";
+import genreIcons from "../../assets/genres";
+import { selectGenreOrCategory } from "../../features/currentGenreOrCategory";
 
 import {
   useGetMovieQuery,
   useRecommendTmdbMutation,
   useGetListQuery,
-} from '../../services/moviesApi';
+} from "../../services/moviesApi";
 
-import api from '../../utils/api';
-import MovieList from '../MovieList/MovieList';
+import api from "../../utils/api";
+import MovieList from "../MovieList/MovieList";
 
 function extractIds(listLike) {
   if (!listLike) return [];
@@ -30,11 +38,11 @@ function extractIds(listLike) {
   if (Array.isArray(listLike)) {
     return listLike
       .map((x) => {
-        if (typeof x === 'number') return x;
-        if (typeof x === 'string' && !Number.isNaN(Number(x))) return Number(x);
+        if (typeof x === "number") return x;
+        if (typeof x === "string" && !Number.isNaN(Number(x))) return Number(x);
         return x?.movieId ?? x?.id;
       })
-      .filter((n) => typeof n === 'number' && !Number.isNaN(n));
+      .filter((n) => typeof n === "number" && !Number.isNaN(n));
   }
 
   if (Array.isArray(listLike.results)) return extractIds(listLike.results);
@@ -51,8 +59,8 @@ function MovieInfo() {
   const { id } = useParams();
   const movieId = Number(id);
 
-  const isTmdb = provider === 'tmdb';
-  const isRecomovie = provider === 'recomovie';
+  const isTmdb = provider === "tmdb";
+  const isRecomovie = provider === "recomovie";
 
   // Important: fallback to localStorage so refresh still works
   const tmdbAccountId = isTmdb
@@ -61,47 +69,38 @@ function MovieInfo() {
           user?.tmdbAccountId ??
           user?.TMDbAccountId ??
           user?.accountId ??
-          localStorage.getItem('tmdb_account_id')
+          localStorage.getItem("tmdb_account_id"),
       )
     : null;
 
-  // Movie from backend DB
   const { data, error, isFetching } = useGetMovieQuery(id);
 
-  /* Recommendations (later update)
-  const { data: recommendations } = useGetRecommendationsQuery(
-    { movie_id: id },
-    { skip: !id }
-  ); */
-
-  // ✅ Recommendations from your backend -> model API -> DB mapping
-  const [recommendTmdb, { data: recommendations, isLoading: recLoading, error: recError }] =
-    useRecommendTmdbMutation();
+  const [
+    recommendTmdb,
+    { data: recommendations, isLoading: recLoading, error: recError },
+  ] = useRecommendTmdbMutation();
 
   const [recoMovies, setRecoMovies] = useState([]);
 
-  const posterPath = data?.poster_path ?? data?.posterPath ?? '';
-  const imdbId = data?.imdb_id ?? data?.imdbId ?? '';
+  const posterPath = data?.poster_path ?? data?.posterPath ?? "";
+  const imdbId = data?.imdb_id ?? data?.imdbId ?? "";
   const releaseDate = data?.release_date ?? data?.releaseDate ?? null;
-  const originalLanguage = data?.original_language ?? data?.originalLanguage ?? '';
+  const originalLanguage =
+    data?.original_language ?? data?.originalLanguage ?? "";
   const runtime = data?.runtime ?? data?.runTime ?? null;
-
 
   // get tmdb id safely (works with different key names)
   const seedTmdbId = useMemo(() => {
     const raw =
-      data?.tmdb_id ??
-      data?.tmdbId ??
-      data?.tmdbID ??
-      data?.TmdbId ??
-      null;
+      data?.tmdb_id ?? data?.tmdbId ?? data?.tmdbID ?? data?.TmdbId ?? null;
 
     const n = Number(raw);
     return Number.isFinite(n) && n > 0 ? n : null;
   }, [data]);
 
   const isLoggedIn =
-  !!localStorage.getItem('recomovie_token') || !!localStorage.getItem('session_id');
+    !!localStorage.getItem("recomovie_token") ||
+    !!localStorage.getItem("session_id");
 
   useEffect(() => {
     if (!seedTmdbId || !isLoggedIn) {
@@ -128,7 +127,9 @@ function MovieInfo() {
       }
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [seedTmdbId, recommendTmdb, isLoggedIn]);
 
   // UI state
@@ -138,20 +139,15 @@ function MovieInfo() {
 
   const [alert, setAlert] = useState({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
-  const showAlert = (message, severity = 'success') => {
+  const showAlert = (message, severity = "success") => {
     setAlert({ open: true, message, severity });
     setTimeout(() => setAlert((prev) => ({ ...prev, open: false })), 2500);
   };
 
-  // -----------------------------
-  // TMDb lists (DB-based, public endpoints)
-  // GET /api/TMDbAccounts/{id}/list?listName=favorite/movies
-  // GET /api/TMDbAccounts/{id}/list?listName=watchlist/movies
-  // -----------------------------
   const skipTmdbLists = !isTmdb || !tmdbAccountId;
 
   const {
@@ -159,8 +155,13 @@ function MovieInfo() {
     isError: favListError,
     refetch: refetchFavList,
   } = useGetListQuery(
-    { listName: 'favorite/movies', accountId: tmdbAccountId, page: 1, pageSize: 200 },
-    { skip: skipTmdbLists }
+    {
+      listName: "favorite/movies",
+      accountId: tmdbAccountId,
+      page: 1,
+      pageSize: 200,
+    },
+    { skip: skipTmdbLists },
   );
 
   const {
@@ -168,13 +169,22 @@ function MovieInfo() {
     isError: watchListError,
     refetch: refetchWatchList,
   } = useGetListQuery(
-    { listName: 'watchlist/movies', accountId: tmdbAccountId, page: 1, pageSize: 200 },
-    { skip: skipTmdbLists }
+    {
+      listName: "watchlist/movies",
+      accountId: tmdbAccountId,
+      page: 1,
+      pageSize: 200,
+    },
+    { skip: skipTmdbLists },
   );
-
-  // IDs from list results (each item is a movie summary with "id")
-  const favoriteIds = useMemo(() => extractIds(favList?.results ?? []), [favList]);
-  const watchIds = useMemo(() => extractIds(watchList?.results ?? []), [watchList]);
+  const favoriteIds = useMemo(
+    () => extractIds(favList?.results ?? []),
+    [favList],
+  );
+  const watchIds = useMemo(
+    () => extractIds(watchList?.results ?? []),
+    [watchList],
+  );
 
   // ---- initial flags: TMDb provider ----
   useEffect(() => {
@@ -199,18 +209,21 @@ function MovieInfo() {
     const loadPersonalFlags = async () => {
       try {
         const [favRes, watchRes] = await Promise.all([
-          api.get('/me/movies/favorites'),
-          api.get('/me/movies/watchlist'),
+          api.get("/me/movies/favorites"),
+          api.get("/me/movies/watchlist"),
         ]);
 
         setIsMovieFavorited(
-          favRes.data?.some((m) => (m.id ?? m.movieId) === movieId) ?? false
+          favRes.data?.some((m) => (m.id ?? m.movieId) === movieId) ?? false,
         );
         setIsMovieWatchlisted(
-          watchRes.data?.some((m) => (m.id ?? m.movieId) === movieId) ?? false
+          watchRes.data?.some((m) => (m.id ?? m.movieId) === movieId) ?? false,
         );
       } catch (err) {
-        console.error('Failed to load personal flags:', err.response?.data ?? err.message);
+        console.error(
+          "Failed to load personal flags:",
+          err.response?.data ?? err.message,
+        );
       }
     };
 
@@ -222,7 +235,7 @@ function MovieInfo() {
     if (!movieId) return;
 
     if (!user || !provider) {
-      showAlert('Please sign in to use this feature.', 'warning');
+      showAlert("Please sign in to use this feature.", "warning");
       return;
     }
 
@@ -231,22 +244,25 @@ function MovieInfo() {
       try {
         if (isMovieFavorited) {
           await api.delete(`/me/movies/favorites/${movieId}`);
-          showAlert('Removed from your favorites.', 'info');
+          showAlert("Removed from your favorites.", "info");
         } else {
           await api.post(`/me/movies/favorites/${movieId}`);
-          showAlert('Added to your favorites.', 'success');
+          showAlert("Added to your favorites.", "success");
         }
         setIsMovieFavorited((prev) => !prev);
       } catch (err) {
-        console.error('Recomovie favorite toggle failed:', err.response?.data ?? err.message);
-        showAlert('Something went wrong. Please try again.', 'error');
+        console.error(
+          "Recomovie favorite toggle failed:",
+          err.response?.data ?? err.message,
+        );
+        showAlert("Something went wrong. Please try again.", "error");
       }
       return;
     }
 
     // TMDb account (backend DB)
     if (!isTmdb || !tmdbAccountId) {
-      showAlert('TMDb account not found. Please sign in again.', 'warning');
+      showAlert("TMDb account not found. Please sign in again.", "warning");
       return;
     }
 
@@ -265,12 +281,15 @@ function MovieInfo() {
       refetchFavList?.();
 
       showAlert(
-        next ? 'Added to your favorites.' : 'Removed from your favorites.',
-        next ? 'success' : 'info'
+        next ? "Added to your favorites." : "Removed from your favorites.",
+        next ? "success" : "info",
       );
     } catch (err) {
-      console.error('TMDb favorite toggle failed:', err.response?.data ?? err.message);
-      showAlert('Backend favorite toggle failed.', 'error');
+      console.error(
+        "TMDb favorite toggle failed:",
+        err.response?.data ?? err.message,
+      );
+      showAlert("Backend favorite toggle failed.", "error");
     }
   };
 
@@ -279,7 +298,7 @@ function MovieInfo() {
     if (!movieId) return;
 
     if (!user || !provider) {
-      showAlert('Please sign in to use this feature.', 'warning');
+      showAlert("Please sign in to use this feature.", "warning");
       return;
     }
 
@@ -288,22 +307,25 @@ function MovieInfo() {
       try {
         if (isMovieWatchlisted) {
           await api.delete(`/me/movies/watchlist/${movieId}`);
-          showAlert('Removed from your watchlist.', 'info');
+          showAlert("Removed from your watchlist.", "info");
         } else {
           await api.post(`/me/movies/watchlist/${movieId}`);
-          showAlert('Added to your watchlist.', 'success');
+          showAlert("Added to your watchlist.", "success");
         }
         setIsMovieWatchlisted((prev) => !prev);
       } catch (err) {
-        console.error('Recomovie watchlist toggle failed:', err.response?.data ?? err.message);
-        showAlert('Something went wrong. Please try again.', 'error');
+        console.error(
+          "Recomovie watchlist toggle failed:",
+          err.response?.data ?? err.message,
+        );
+        showAlert("Something went wrong. Please try again.", "error");
       }
       return;
     }
 
     // TMDb account (backend DB)
     if (!isTmdb || !tmdbAccountId) {
-      showAlert('TMDb account not found. Please sign in again.', 'warning');
+      showAlert("TMDb account not found. Please sign in again.", "warning");
       return;
     }
 
@@ -319,12 +341,15 @@ function MovieInfo() {
       refetchWatchList?.();
 
       showAlert(
-        next ? 'Added to your watchlist.' : 'Removed from your watchlist.',
-        next ? 'success' : 'info'
+        next ? "Added to your watchlist." : "Removed from your watchlist.",
+        next ? "success" : "info",
       );
     } catch (err) {
-      console.error('TMDb watchlist toggle failed:', err.response?.data ?? err.message);
-      showAlert('Backend watchlist toggle failed.', 'error');
+      console.error(
+        "TMDb watchlist toggle failed:",
+        err.response?.data ?? err.message,
+      );
+      showAlert("Backend watchlist toggle failed.", "error");
     }
   };
 
@@ -332,7 +357,7 @@ function MovieInfo() {
   if (isFetching) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center">
-        <CircularProgress size="8rem" />
+        <CircularProgress />
       </Box>
     );
   }
@@ -346,67 +371,66 @@ function MovieInfo() {
   }
 
   const websiteUrl =
-  (data?.homepage && String(data.homepage).trim()) ||
-  (seedTmdbId ? `https://www.themoviedb.org/movie/${seedTmdbId}` : null);
+    (data?.homepage && String(data.homepage).trim()) ||
+    (seedTmdbId ? `https://www.themoviedb.org/movie/${seedTmdbId}` : null);
 
   return (
     <>
       <Box sx={sx.layout}>
         <img
-          src={posterPath ? `https://image.tmdb.org/t/p/w500/${posterPath}` : ''}
+          src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
           style={sx.image}
           alt={data?.title}
         />
 
         <Box flex="1">
-          <Typography variant="h3" fontWeight="bold" align="center" gutterBottom>
+          <Typography
+            variant="h3"
+            fontWeight="bold"
+            align="center"
+            gutterBottom
+          >
             {data?.title}
           </Typography>
 
-          <Typography variant="h5" align="center" gutterBottom fontStyle="italic">
-            {data?.tagline ? `"${data.tagline}"` : ''}
-          </Typography>
-
           <Grid container alignItems="baseline" my={1.5}>
-            <Grid item xs={12} md={4}>
+            <Grid size={4}>
               <Button
                 variant="outlined"
                 color={
-                  theme.palette.mode === 'dark'
+                  theme.palette.mode === "dark"
                     ? theme.palette.error.main
                     : theme.palette.primary.main
                 }
                 sx={sx.imdb}
                 target="_blank"
-                href={imdbId ? `https://www.imdb.com/title/${imdbId}` : undefined}
+                href={`https://www.imdb.com/title/${data?.imdb_id}`}
               >
-                <Typography variant="subtitle1" fontWeight={500}>
-                  IMDB{' '}
+                <Typography variant="subcribe1" fontWeightLight={500}>
+                  IMDB{" "}
                   {data?.vote_average ? (
                     <>
-                      {Number(data.vote_average).toFixed(1)} / 10{' '}
+                      {data.vote_average.toFixed(1)} / 10{" "}
                       <Typography component="span" variant="caption" ml="0.75">
-                        ({data?.vote_count?.toLocaleString?.() ?? data?.vote_count ?? 0})
+                        ({data.vote_count?.toLocaleString() ?? 0})
                       </Typography>
                     </>
                   ) : (
-                    'N/A'
+                    "N/A"
                   )}
                 </Typography>
               </Button>
             </Grid>
 
-            <Grid item xs={12} md={8}>
+            <Grid size={8}>
               <Typography variant="h5" align="right" gutterBottom>
-                {runtime ? `${runtime} min • ` : ''}
-                {releaseDate
-                  ? new Date(releaseDate).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })
-                  : 'N/A'}{' '}
-                • {originalLanguage ? originalLanguage.toUpperCase() : ''}
+                {data?.runtime} min •{" "}
+                {new Date(data?.release_date).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}{" "}
+                • {data?.original_language?.toUpperCase()}
               </Typography>
             </Grid>
           </Grid>
@@ -416,16 +440,20 @@ function MovieInfo() {
             {data?.genres?.map((genre) => (
               <Link
                 style={sx.links}
-                key={genre.id}
+                key={genre.name}
                 to="/"
                 onClick={() => dispatch(selectGenreOrCategory(genre.id))}
               >
                 <img
-                  src={genreIcons[genre.name?.toLowerCase()] ?? genreIcons.action}
+                  src={genreIcons[genre.name.toLowerCase()]}
                   style={sx.genreImage}
                   alt={genre.name}
                 />
-                <Typography color="textPrimary" variant="subtitle1" gutterBottom>
+                <Typography
+                  color="textPrimary"
+                  variant="subtitle1"
+                  gutterBottom
+                >
                   {genre?.name}
                 </Typography>
               </Link>
@@ -445,20 +473,15 @@ function MovieInfo() {
               Top Cast
             </Typography>
 
-            <Grid container my={2} spacing={1}>
+            <Grid container my={2}>
               {data?.credits?.cast
                 ?.filter((c) => c.profile_path)
                 .slice(0, 6)
                 .map((character) => (
                   <Grid
-                    item
-                    key={character.id}
                     component={Link}
                     to={`/actors/${character.id}`}
                     sx={sx.links}
-                    xs={6}
-                    sm={4}
-                    md={2}
                   >
                     <Box sx={sx.castContainer}>
                       <img
@@ -467,87 +490,99 @@ function MovieInfo() {
                         style={sx.castImage}
                       />
                       <Box sx={sx.castText}>
-                        <Typography sx={sx.nameCast}>{character.name}</Typography>
+                        <Typography sx={sx.nameCast}>
+                          {character.name}
+                        </Typography>
                       </Box>
                     </Box>
                   </Grid>
                 ))}
             </Grid>
           </Box>
-
           {alert.open && (
             <Alert
               variant="filled"
               severity={alert.severity}
-              onClose={() => setAlert((prev) => ({ ...prev, open: false }))}
+              onClose={() => setAlert({ ...alert, open: false })}
               sx={{
-                position: 'fixed',
-                top: '64px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: (t) => t.zIndex.appBar + 1,
-                width: 'fit-content',
-                maxWidth: '90%',
+                position: "fixed",
+                top: "64px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: (theme) => theme.zIndex.appBar + 1,
+                width: "fit-content",
+                maxWidth: "90%",
               }}
             >
               {alert.message}
             </Alert>
           )}
-
+          {/* Buttons */}
           <Grid container justifyContent="space-between">
-            <Button variant="contained" sx={sx.button} component="a" target="_blank" rel="noopener noreferrer" href={websiteUrl ?? undefined} disabled={!websiteUrl}>
+            <Button
+              variant="contained"
+              sx={sx.button}
+              target="_blank"
+              href={websiteUrl}
+            >
               WEBSITE
             </Button>
-
-            <Button variant="contained" sx={sx.button} onClick={() => setOpen(true)}>
+            <Button
+              variant="contained"
+              sx={sx.button}
+              onClick={() => setOpen(true)}
+            >
               TRAILER
             </Button>
-
             <Button variant="contained" sx={sx.button} onClick={addToFavorites}>
               {isMovieFavorited ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </Button>
-
             <Button variant="contained" sx={sx.button} onClick={addToWatchList}>
-              {isMovieWatchlisted ? <MovieIcon /> : <MovieCreationOutlinedIcon />}
+              {isMovieWatchlisted ? (
+                <MovieIcon />
+              ) : (
+                <MovieCreationOutlinedIcon />
+              )}
             </Button>
           </Grid>
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1.5, my: 4 }}>
+      {/* Recommendations */}
+      <Box sx={{ display: "flex", gap: 1.5, my: 4 }}>
         <Box sx={sx.line} />
         <Typography variant="h4">You might also like...</Typography>
       </Box>
 
       {/* NOT LOGGED IN */}
       {!isLoggedIn && (
-        <Alert severity="info" sx={{ my: 2 }}>
+        <Typography display="flex" justifyContent="center">
+          {" "}
           You need to log in to see the recommendation.
-        </Alert>
+        </Typography>
       )}
 
       {/* LOGGED IN ONLY */}
       {isLoggedIn && recLoading && (
-        <Box display="flex" alignItems="center" gap={2} sx={{ my: 2 }}>
-          <CircularProgress size={20} />
-          <Typography>Loading recommendations...</Typography>
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
         </Box>
       )}
 
       {isLoggedIn && !recLoading && recError && (
-        <Alert severity="warning" sx={{ my: 2 }}>
-          Failed to load recommendations.
-        </Alert>
+        <Alert severity="warning">Failed to load recommendations.</Alert>
       )}
 
-      {isLoggedIn && !recLoading && !recError && (
-        recoMovies.length ? (
+      {isLoggedIn &&
+        !recLoading &&
+        !recError &&
+        (recoMovies.length ? (
           <MovieList movies={recoMovies} />
         ) : (
           <Typography>Sorry, nothing was found.</Typography>
-        )
-      )}
+        ))}
 
+      {/* Trailer Modal */}
       {data?.videos?.results?.length > 0 && (
         <Modal closeAfterTransition open={open} onClose={() => setOpen(false)}>
           <div style={sx.modal}>

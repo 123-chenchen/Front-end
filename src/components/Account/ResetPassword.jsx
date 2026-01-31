@@ -8,7 +8,7 @@ import background from '../../assets/background/background.png';
 import blueLogo from '../../assets/logo/bluelogo.png';
 import redLogo from '../../assets/logo/redlogo.png';
 import api from '../../utils/api';
-import styles from './style';
+import styles from './styles';
 
 export default function ResetPassword() {
   const theme = useTheme();

@@ -11,7 +11,7 @@ import blueLogo from "../../assets/logo/bluelogo.png";
 import redLogo from "../../assets/logo/redlogo.png";
 import { loginWithRecomovie } from "../../features/recomovielogin";
 import { fetchToken } from "../../utils";
-import styles from "./style";
+import styles from "./styles";
 
 export default function LoginPage({ onClose }) {
   const dispatch = useDispatch();
