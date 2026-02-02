@@ -356,7 +356,7 @@ function MovieInfo() {
   // ---- loading & error ----
   if (isFetching) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center">
+      <Box display="flex" justifyContent="center">
         <CircularProgress />
       </Box>
     );

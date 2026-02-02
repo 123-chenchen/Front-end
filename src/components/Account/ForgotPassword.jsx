@@ -64,8 +64,9 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
+     <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
       <Box sx={sx.overlay} />
+
       <Box
         sx={{
           position: "absolute",
@@ -79,7 +80,7 @@ export default function ForgotPassword() {
       <Box sx={sx.content}>
         <Stack spacing={2}>
           <Typography variant="h4" fontWeight="bold">
-            Reset Password
+            Reset password
           </Typography>
 
           {alert && <Alert severity={alert.severity}>{alert.text}</Alert>}

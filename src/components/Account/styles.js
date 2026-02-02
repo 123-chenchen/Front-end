@@ -19,6 +19,11 @@ export default function styles(theme) {
       borderRadius: 2,
       p: 5,
       bgcolor: theme.palette.background.default,
+      width: 420,
+      minHeight: 520,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
     },
     text: {
       color: theme.palette.mode === 'dark' ? theme.palette.error.main : theme.palette.primary.main,

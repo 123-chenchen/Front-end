@@ -1,28 +1,41 @@
-import { Brightness4, Brightness7 } from '@mui/icons-material';
-import { Alert, Box, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { useContext, useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Brightness4, Brightness7 } from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useContext, useMemo, useState } from "react";
+import {
+  Link,
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
-import background from '../../assets/background/background.png';
-import blueLogo from '../../assets/logo/bluelogo.png';
-import redLogo from '../../assets/logo/redlogo.png';
-import api from '../../utils/api';
-import styles from './styles';
+import background from "../../assets/background/background.png";
+import blueLogo from "../../assets/logo/bluelogo.png";
+import redLogo from "../../assets/logo/redlogo.png";
+import api from "../../utils/api";
+import styles from "./styles";
 
 export default function ResetPassword() {
   const theme = useTheme();
   const sx = styles(theme);
   const navigate = useNavigate();
 
-  const logo = theme.palette.mode === 'dark' ? redLogo : blueLogo;
+  const logo = theme.palette.mode === "dark" ? redLogo : blueLogo;
 
   const [searchParams] = useSearchParams();
-  const tokenFromUrl = searchParams.get('token') || '';
+  const tokenFromUrl = searchParams.get("token") || "";
 
   const [token, setToken] = useState(tokenFromUrl);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -38,11 +51,11 @@ export default function ResetPassword() {
 
     const t = token.trim();
     if (!t || !newPassword || !confirmPassword) {
-      showAlert('warning', 'Please fill in all fields.');
+      showAlert("warning", "Please fill in all fields.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      showAlert('warning', 'Passwords do not match.');
+      showAlert("warning", "Passwords do not match.");
       return;
     }
 
@@ -55,37 +68,44 @@ export default function ResetPassword() {
         confirmPassword,
       };
 
-      const res = await api.post('/Account/ResetPassword', payload);
+      const res = await api.post("/Account/ResetPassword", payload);
 
-      showAlert('success', res?.data?.message || 'Password reset successfully.');
+      showAlert(
+        "success",
+        res?.data?.message || "Password reset successfully.",
+      );
 
-      setTimeout(() => navigate('/login'), 1200);
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
-        (typeof err?.response?.data === 'string' ? err.response.data : null) ||
+        (typeof err?.response?.data === "string" ? err.response.data : null) ||
         err.message ||
-        'Reset failed.';
-      showAlert('error', msg);
+        "Reset failed.";
+      showAlert("error", msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
-      <Box sx={{ ...sx.overlay, pointerEvents: 'none' }} />
+      <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
+      <Box sx={sx.overlay} />
 
-    
-
-      <Box sx={{ position: 'absolute', top: 20, left: 20, zIndex: 2 }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+        }}
+      >
         <img src={logo} alt="Logo" style={{ height: 100 }} />
       </Box>
 
-      <Box sx={{ ...sx.content, position: 'relative', zIndex: 2 }}>
+      <Box sx={sx.content}>
         <Stack spacing={2}>
           <Typography variant="h4" fontWeight="bold">
-            Reset Password
+            Reset password
           </Typography>
 
           {alert && <Alert severity={alert.severity}>{alert.text}</Alert>}
@@ -112,23 +132,33 @@ export default function ResetPassword() {
           />
 
           <Button type="button" disabled={!canSubmit} onClick={onSubmit}>
-            <Typography sx={sx.text}>{loading ? 'Saving…' : 'Submit'}</Typography>
+            <Typography sx={sx.text}>
+              {loading ? "Saving…" : "Submit"}
+            </Typography>
           </Button>
+
+          <Typography>
+            Remember your account?
+            <Typography
+              component={RouterLink}
+              to="/login"
+              sx={{ ...sx.text, zIndex: 10, position: "relative" }}
+            >
+              &nbsp; Sign in
+            </Typography>
+          </Typography>
+
+          <Typography>
+            Need a reset email?
+            <Typography
+              component={RouterLink}
+              to="/forgot-password"
+              sx={{ ...sx.text, zIndex: 10, position: "relative" }}
+            >
+              &nbsp; Request one
+            </Typography>
+          </Typography>
         </Stack>
-
-        <Typography variant="body2" mt={3}>
-          Back to{' '}
-          <Link to="/login" style={{ color: 'inherit', textDecoration: 'underline' }}>
-            Sign in
-          </Link>
-        </Typography>
-
-        <Typography variant="body2" mt={1}>
-          Need a reset email?{' '}
-          <Link to="/forgot-password" style={{ color: 'inherit', textDecoration: 'underline' }}>
-            Request one
-          </Link>
-        </Typography>
       </Box>
     </Box>
   );

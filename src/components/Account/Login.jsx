@@ -132,7 +132,7 @@ export default function LoginPage({ onClose }) {
 
           <Typography
             component={RouterLink}
-            to="/forgot-password"
+            to="/reset-password"
             sx={{ ...sx.text, zIndex: 10, position: "relative" }}
           >
             &nbsp; Forgot password?

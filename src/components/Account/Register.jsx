@@ -1,4 +1,3 @@
-import { Brightness4, Brightness7 } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -7,29 +6,29 @@ import {
   Stack,
   TextField,
   Typography,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { useContext, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-import background from '../../assets/background/background.png';
-import blueLogo from '../../assets/logo/bluelogo.png';
-import redLogo from '../../assets/logo/redlogo.png';
-import api from '../../utils/api';
-import styles from './styles';
-
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useMemo, useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import DoneIcon from "@mui/icons-material/Done";
+import background from "../../assets/background/background.png";
+import blueLogo from "../../assets/logo/bluelogo.png";
+import redLogo from "../../assets/logo/redlogo.png";
+import api from "../../utils/api";
+import styles from "./styles";
+import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 export default function Register() {
   const theme = useTheme();
   const sx = styles(theme);
   const navigate = useNavigate();
 
-  const logo = theme.palette.mode === 'dark' ? redLogo : blueLogo;
+  const logo = theme.palette.mode === "dark" ? redLogo : blueLogo;
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
@@ -52,12 +51,18 @@ export default function Register() {
     setAlert(null);
 
     // quick frontend checks
-    if (!fullName.trim() || !email.trim() || !username.trim() || !password || !confirmPassword) {
-      showAlert('warning', 'Please fill in all fields.');
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !username.trim() ||
+      !password ||
+      !confirmPassword
+    ) {
+      showAlert("warning", "Please fill in all fields.");
       return;
     }
     if (password !== confirmPassword) {
-      showAlert('warning', 'Passwords do not match.');
+      showAlert("warning", "Passwords do not match.");
       return;
     }
 
@@ -72,20 +77,23 @@ export default function Register() {
         confirmPassword,
       };
 
-      const res = await api.post('/Account/Register', payload);
+      const res = await api.post("/Account/Register", payload);
 
       // BE returns 201 with { message, userId }
-      showAlert('success', res?.data?.message || 'Registered! Check your email to verify.');
+      showAlert(
+        "success",
+        res?.data?.message || "Registered! Check your email to verify.",
+      );
 
       // optional UX: send to login after a short moment
-      setTimeout(() => navigate('/login'), 1200);
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
-        (typeof err?.response?.data === 'string' ? err.response.data : null) ||
+        (typeof err?.response?.data === "string" ? err.response.data : null) ||
         err.message ||
-        'Register failed.';
-      showAlert('error', msg);
+        "Register failed.";
+      showAlert("error", msg);
     } finally {
       setLoading(false);
     }
@@ -96,17 +104,24 @@ export default function Register() {
 
     const e = email.trim();
     if (!e) {
-      showAlert('warning', 'Enter your email above first.');
+      showAlert("warning", "Enter your email above first.");
       return;
     }
 
     try {
       setResendLoading(true);
-      const res = await api.post('/Account/ResendVerificationEmail', { email: e });
-      showAlert('info', res?.data?.message || 'If the email exists, we sent a new verification link.');
+      const res = await api.post("/Account/ResendVerificationEmail", {
+        email: e,
+      });
+      showAlert(
+        "info",
+        res?.data?.message ||
+          "If the email exists, we sent a new verification link.",
+      );
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || 'Resend failed.';
-      showAlert('error', msg);
+      const msg =
+        err?.response?.data?.message || err.message || "Resend failed.";
+      showAlert("error", msg);
     } finally {
       setResendLoading(false);
     }
@@ -114,14 +129,19 @@ export default function Register() {
 
   return (
     <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
-      <Box sx={{ ...sx.overlay, pointerEvents: 'none' }} />
-
-
-      <Box sx={{ position: 'absolute', top: 20, left: 20 }}>
+      <Box sx={sx.overlay} />
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+        }}
+      >
         <img src={logo} alt="Logo" style={{ height: 100 }} />
       </Box>
+      {/* Content */}
 
-      <Box sx={{ ...sx.content, position: 'relative', zIndex: 2 }}>
+      <Box sx={sx.content}>
         <Stack spacing={2}>
           <Typography variant="h4" fontWeight="bold">
             Register
@@ -130,9 +150,21 @@ export default function Register() {
           {alert && <Alert severity={alert.severity}>{alert.text}</Alert>}
 
           {/* Recomovie register */}
-          <TextField label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <TextField
+            label="Full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+          <TextField
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
           <TextField
             label="Password"
             type="password"
@@ -146,23 +178,47 @@ export default function Register() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <Button type="button" disabled={!canSubmit} onClick={onSubmit}>
-            <Typography sx={sx.text}>{loading ? 'Creating…' : 'Submit'}</Typography>
+          <Button
+            disabled={!canSubmit}
+            onClick={onSubmit}
+            variant="outlined"
+            sx={sx.button}
+            color={
+              theme.palette.mode === "dark"
+                ? theme.palette.error.main
+                : theme.palette.primary.main
+            }
+            startIcon={<DoneIcon />}
+          >
+            <Typography sx={sx.text}>Submit</Typography>
           </Button>
 
-          <Button disabled={resendLoading} onClick={resendVerification} variant="text">
-            <Typography sx={sx.text}>
-              {resendLoading ? 'Sending…' : 'Resend verification email'}
+          <Button
+            disabled={resendLoading}
+            onClick={resendVerification}
+            variant="outlined"
+            sx={sx.button}
+            color={
+              theme.palette.mode === "dark"
+                ? theme.palette.error.main
+                : theme.palette.primary.main
+            }
+            startIcon={<LocalMoviesIcon />}
+          >
+            <Typography sx={sx.text}>Resend verification email</Typography>
+          </Button>
+
+          <Typography>
+            Already have an account?
+            <Typography
+              component={RouterLink}
+              to="/login"
+              sx={{ ...sx.text, zIndex: 10, position: "relative" }}
+            >
+              &nbsp; Sign in
             </Typography>
-          </Button>
+          </Typography>
         </Stack>
-
-        <Typography variant="body2" mt={3}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: 'inherit', textDecoration: 'underline' }}>
-            Sign in
-          </Link>
-        </Typography>
       </Box>
     </Box>
   );

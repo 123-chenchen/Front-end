@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { MovieList, FeaturedMovie } from '../index';
 import { useGetMoviesQuery } from '../../services/moviesApi';
 
-const TARGET = 40;
+const TARGET = 52;
 
 function Movies() {
   const [page, setPage] = useState(1);
