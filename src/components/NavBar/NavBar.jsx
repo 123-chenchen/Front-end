@@ -1,15 +1,32 @@
-import { AccountCircle, Brightness4, Brightness7 } from '@mui/icons-material';
-import { AppBar, Avatar, Box, Button, Drawer, IconButton, Toolbar } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { useContext, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  AccountCircle,
+  Brightness4,
+  Brightness7,
+  ExitToApp,
+} from "@mui/icons-material";
 
-import { setUser } from '../../features/auth';
-import { createSessionId, moviesApi } from '../../utils';
-import { ColorModeContext } from '../../utils/ToggleColorMode';
-import { Search, Sidebar } from '../index';
-import styles from './styles';
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Toolbar,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+
+import { useTheme } from "@mui/material/styles";
+import { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import { setUser } from "../../features/auth";
+import { moviesApi } from "../../utils";
+import { ColorModeContext } from "../../utils/ToggleColorMode";
+import { Search, Sidebar } from "../index";
+import styles from "./styles";
 
 function Navbar({ onLoginClick }) {
   const theme = useTheme();
@@ -18,50 +35,72 @@ function Navbar({ onLoginClick }) {
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const dispatch = useDispatch();
+
   const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const token = localStorage.getItem('request_token');
-  const sessionIdFromLocalStorage = localStorage.getItem('session_id');
+  /* ================= MENU STATE ================= */
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  /* ================= LOGOUT ================= */
+  const handleLogout = () => {
+    localStorage.removeItem("recomovie_user");
+    localStorage.removeItem("recomovie_token");
+    localStorage.removeItem("session_id");
+
+    dispatch(setUser(null));
+
+    handleMenuClose();
+    navigate("/");
+  };
+
+  /* ================= USER SOURCE ================= */
   const recomovieUser = (() => {
     try {
-      const raw = localStorage.getItem('recomovie_user');
+      const raw = localStorage.getItem("recomovie_user");
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
   })();
 
+  const profileRoute = recomovieUser
+    ? `/recomovie-profile/${recomovieUser.id}`
+    : isAuthenticated && user
+      ? `/tmdb-profile/${user.id}`
+      : null;
 
-  /* useEffect(() => {
-    const logInUser = async () => {
-      if (!token && !sessionIdFromLocalStorage) return;
+  const isOnProfile = profileRoute
+    ? location.pathname.startsWith(profileRoute)
+    : false;
 
-      try {
-        let sessionId = sessionIdFromLocalStorage;
-        if (!sessionId) sessionId = await createSessionId();
-        if (!sessionId) return; // ✅ don’t call /account with null
-        const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
+  /* ================= HANDLE MY MOVIES CLICK ================= */
+  const handleMyMoviesClick = (event) => {
+    if (!profileRoute) return;
 
-        dispatch(setUser(data));
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    if (!isOnProfile) {
+      navigate(profileRoute);
+    } else {
+      handleMenuOpen(event);
+    }
+  };
 
-    logInUser();
-  }, [token, sessionIdFromLocalStorage, dispatch]); */
-
+  /* ================= TMDB SESSION LOAD ================= */
   useEffect(() => {
     const logInUser = async () => {
       if (recomovieUser) return;
 
-      const sessionId = localStorage.getItem('session_id');
-      if (!sessionId) return; // ✅ only proceed if session already exists
+      const sessionId = localStorage.getItem("session_id");
+      if (!sessionId) return;
 
       try {
-        const { data } = await moviesApi.get(`/account?session_id=${sessionId}`);
+        const { data } = await moviesApi.get(
+          `/account?session_id=${sessionId}`,
+        );
         dispatch(setUser(data));
       } catch (err) {
         console.error(err);
@@ -71,33 +110,33 @@ function Navbar({ onLoginClick }) {
     logInUser();
   }, [dispatch]);
 
+  /* ================= LOGIN CLICK ================= */
   const handleLoginClick = () => {
-    if (typeof onLoginClick === 'function') {
+    if (typeof onLoginClick === "function") {
       onLoginClick();
       return;
     }
 
     const from = `${location.pathname}${location.search}${location.hash}`;
-    sessionStorage.setItem('auth_from', from);
-    navigate('/login', { state: { from } });
+    sessionStorage.setItem("auth_from", from);
+
+    navigate("/login", { state: { from } });
   };
 
+  /* ================= RENDER AUTH BUTTON ================= */
   const renderAuthButton = () => {
-    // Recomovie
     if (recomovieUser) {
       return (
         <Button
-          startIcon={<Avatar>{recomovieUser.username[0].toUpperCase()}</Avatar>}
           color="inherit"
-          component={Link}
-          to={`/recomovie-profile/${recomovieUser.id}`}
+          startIcon={<Avatar>{recomovieUser.username[0].toUpperCase()}</Avatar>}
+          onClick={handleMyMoviesClick}
         >
           My Movies
         </Button>
       );
     }
 
-    // TMDb
     if (isAuthenticated && user) {
       return (
         <Button
@@ -111,42 +150,57 @@ function Navbar({ onLoginClick }) {
               }
             />
           }
-          component={Link}
-          to={`/tmdb-profile/${user.id}`}
+          onClick={handleMyMoviesClick}
         >
           My Movies
         </Button>
       );
     }
 
-    // Not login yet
     return (
-      <Button color="inherit" startIcon={<AccountCircle />} onClick={handleLoginClick}>
+      <Button
+        color="inherit"
+        startIcon={<AccountCircle />}
+        onClick={handleLoginClick}
+      >
         LOGIN
       </Button>
     );
   };
 
+  /* ================= RENDER ================= */
   return (
     <>
       <AppBar position="fixed" sx={sx.appBar}>
         <Toolbar sx={sx.toolbar}>
-          {/* Toggle theme */}
+          {/* Theme toggle */}
           <IconButton onClick={colorMode.toggleColorMode} color="inherit">
-            {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+            {theme.palette.mode === "dark" ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
 
           {/* Search */}
-          <Search />
+          <Box sx={{ flexGrow: 1, maxWidth: 400 }}>
+            <Search />
+          </Box>
 
-          {/* LOGIN / PROFILE */}
+          {/* Auth button */}
           {renderAuthButton()}
+
+          {/* Dropdown Menu */}
+          <Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
+            <MenuItem onClick={handleLogout}>
+              Logout &nbsp; <ExitToApp />
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
       {/* Sidebar */}
       <Box component="nav" sx={sx.drawer}>
-        <Drawer variant="permanent" slotProps={{ paper: { sx: sx.drawerPaper } }}>
+        <Drawer
+          variant="permanent"
+          slotProps={{ paper: { sx: sx.drawerPaper } }}
+        >
           <Sidebar />
         </Drawer>
       </Box>

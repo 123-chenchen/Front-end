@@ -1,22 +1,19 @@
-import { Brightness4, Brightness7 } from "@mui/icons-material";
 import {
   Alert,
   Box,
   Button,
-  IconButton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Link,
   Link as RouterLink,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-
+import DoneIcon from "@mui/icons-material/Done";
 import background from "../../assets/background/background.png";
 import blueLogo from "../../assets/logo/bluelogo.png";
 import redLogo from "../../assets/logo/redlogo.png";
@@ -89,7 +86,7 @@ export default function ResetPassword() {
   };
 
   return (
-      <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
+    <Box sx={{ ...sx.background, backgroundImage: `url(${background})` }}>
       <Box sx={sx.overlay} />
 
       <Box
@@ -131,10 +128,19 @@ export default function ResetPassword() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <Button type="button" disabled={!canSubmit} onClick={onSubmit}>
-            <Typography sx={sx.text}>
-              {loading ? "Saving…" : "Submit"}
-            </Typography>
+          <Button
+            disabled={!canSubmit}
+            onClick={onSubmit}
+            variant="outlined"
+            sx={sx.button}
+            color={
+              theme.palette.mode === "dark"
+                ? theme.palette.error.main
+                : theme.palette.primary.main
+            }
+            startIcon={<DoneIcon />}
+          >
+            <Typography sx={sx.text}>Submit</Typography>
           </Button>
 
           <Typography>

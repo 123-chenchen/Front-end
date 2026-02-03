@@ -1,36 +1,45 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Box, CircularProgress } from '@mui/material';
-import { useSelector } from 'react-redux';
+import { useState, useEffect, useMemo } from "react";
+import { Box, CircularProgress, IconButton, Fade } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import style from "./styles";
+import { MovieList, FeaturedMovie } from "../index";
+import { useGetMoviesQuery } from "../../services/moviesApi";
+import { useTheme } from "@mui/material/styles";
 
-import { MovieList, FeaturedMovie } from '../index';
-import { useGetMoviesQuery } from '../../services/moviesApi';
-
-const TARGET = 52;
+const TARGET = 54;
+const FEATURED_COUNT = 5;
+const SLIDE_INTERVAL = 4000;
 
 function Movies() {
   const [page, setPage] = useState(1);
   const [moviesMap, setMoviesMap] = useState(new Map());
-  const [featuredMovie, setFeaturedMovie] = useState(null);
 
+  const [featuredMovies, setFeaturedMovies] = useState([]);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const theme = useTheme();
+  const sx = style(theme);
   const { genreIdOrCategoryName, searchQuery } = useSelector(
-    (state) => state.currentGenreOrCategory
+    (state) => state.currentGenreOrCategory,
   );
 
   const { data, isFetching } = useGetMoviesQuery({
     genreIdOrCategoryName,
     page,
     searchQuery,
-    pageSize: 20
+    pageSize: 20,
   });
 
-  // reset when filter/search changes
+  /* ================= RESET ================= */
   useEffect(() => {
     setPage(1);
     setMoviesMap(new Map());
-    setFeaturedMovie(null);
+    setFeaturedMovies([]);
+    setFeaturedIndex(0);
   }, [genreIdOrCategoryName, searchQuery]);
 
-  // ✅ REPLACE your "forEach add to map" effect with this capped version
+  /* ================= COLLECT MOVIES ================= */
   useEffect(() => {
     if (!data?.results?.length) return;
 
@@ -38,48 +47,130 @@ function Movies() {
       const map = new Map(prev);
 
       for (const movie of data.results) {
-        if (map.size >= TARGET) break;     // hard cap
-        map.set(movie.id, movie);          // still de-dupes by id
+        if (map.size >= TARGET) break;
+        map.set(movie.id, movie);
       }
 
       return map;
     });
   }, [data]);
 
-  // fetch more pages only until we have TARGET unique movies
+  /* ================= AUTO PAGINATION ================= */
   useEffect(() => {
-    if (moviesMap.size < TARGET && data?.page < data?.total_pages && !isFetching) {
+    if (
+      moviesMap.size < TARGET &&
+      data?.page < data?.total_pages &&
+      !isFetching
+    ) {
       setPage((p) => p + 1);
     }
   }, [moviesMap.size, data, isFetching]);
 
-  // pick featured movie once, then keep rest in the list
+  /* ================= PICK FEATURED ================= */
   useEffect(() => {
-    if (!featuredMovie && moviesMap.size > 0) {
-      const [first, ...rest] = Array.from(moviesMap.values());
-      setFeaturedMovie(first);
+    if (featuredMovies.length === 0 && moviesMap.size >= FEATURED_COUNT) {
+      const all = Array.from(moviesMap.values());
+
+      const featured = all.slice(0, FEATURED_COUNT);
+      const rest = all.slice(FEATURED_COUNT);
+
+      setFeaturedMovies(featured);
 
       const map = new Map();
       rest.forEach((m) => map.set(m.id, m));
       setMoviesMap(map);
     }
-  }, [moviesMap, featuredMovie]);
+  }, [moviesMap, featuredMovies.length]);
 
-  // small perf: avoid recreating arrays/objects unnecessarily
-  const moviesArray = useMemo(() => Array.from(moviesMap.values()), [moviesMap]);
+  /* ================= AUTO SLIDE ================= */
+  useEffect(() => {
+    if (featuredMovies.length === 0 || isHovered) return;
 
-  if (isFetching && !featuredMovie) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+    const id = setInterval(() => {
+      setFeaturedIndex((i) => (i === featuredMovies.length - 1 ? 0 : i + 1));
+    }, SLIDE_INTERVAL);
 
+    return () => clearInterval(id);
+  }, [featuredMovies, isHovered]);
+
+  const moviesArray = useMemo(
+    () => Array.from(moviesMap.values()),
+    [moviesMap],
+  );
+
+  /* ================= RENDER ================= */
   return (
     <Box>
-      {featuredMovie && <FeaturedMovie movie={featuredMovie} />}
-      {/* MovieList already supports array input in your code */}
+      {/* Loading */}
+      {isFetching && featuredMovies.length === 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {/* Featured */}
+      {featuredMovies.length > 0 && (
+        <Box
+          sx={{ position: "relative" }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <Fade
+            key={featuredMovies[featuredIndex]?.id} // 👈 RẤT QUAN TRỌNG
+            in={true}
+            appear
+            mountOnEnter
+            timeout={500}
+          >
+            <Box>
+              <FeaturedMovie movie={featuredMovies[featuredIndex]} />
+            </Box>
+          </Fade>
+
+          {/* Prev */}
+          <IconButton
+            onClick={() =>
+              setFeaturedIndex((i) =>
+                i === 0 ? featuredMovies.length - 1 : i - 1,
+              )
+            }
+            sx={{ ...sx.arrow, left: 16 }}
+          >
+            <ArrowBackIos />
+          </IconButton>
+
+          {/* Next */}
+          <IconButton
+            onClick={() =>
+              setFeaturedIndex((i) =>
+                i === featuredMovies.length - 1 ? 0 : i + 1,
+              )
+            }
+            sx={{ ...sx.arrow, right: 16 }}
+          >
+            <ArrowForwardIos />
+          </IconButton>
+
+          {/* Dots */}
+          <Box sx={{ ...sx.dotsContainer }}>
+            {featuredMovies.map((_, i) => (
+              <Box
+                key={i}
+                onClick={() => setFeaturedIndex(i)}
+                sx={{
+                  ...sx.dot,
+                  backgroundColor:
+                    i === featuredIndex
+                      ? theme.palette.common.white
+                      : theme.palette.grey[500],
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {/* Movie list */}
       <MovieList movies={moviesArray} />
     </Box>
   );

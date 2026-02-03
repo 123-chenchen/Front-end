@@ -48,9 +48,8 @@ export default function VerifyEmail() {
         </Typography>
 
         {status === 'loading' && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
-            <CircularProgress size={24} />
-            <Typography>Verifying…</Typography>
+          <Box sx={{ display: 'flex', justifyContenr: 'center'}}>
+            <CircularProgress />
           </Box>
         )}
 

@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  IconButton,
   Stack,
   TextField,
   Typography,
@@ -17,6 +16,7 @@ import redLogo from "../../assets/logo/redlogo.png";
 import api from "../../utils/api";
 import styles from "./styles";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
+
 export default function Register() {
   const theme = useTheme();
   const sx = styles(theme);

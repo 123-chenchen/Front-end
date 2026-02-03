@@ -1,15 +1,13 @@
-import React from 'react';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 
-import styles from './styles';
+import styles from "./styles";
 import {
   useGetActorQuery,
   useGetMoviesByActorIdQuery,
-} from '../../services/moviesApi';   // backend RTK service
-import MovieList from '../RatedCards/RatedCards';
-import RatedCards from '../RatedCards/RatedCards';
+} from "../../services/moviesApi"; // backend RTK service
+import RatedCards from "../RatedCards/RatedCards";
 
 function Actors() {
   const theme = useTheme();
@@ -20,7 +18,9 @@ function Actors() {
 
   if (isFetching) {
     return (
-      <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+      <Box display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
     );
   }
 
@@ -41,15 +41,20 @@ function Actors() {
           alt={data.name}
         />
         <Box flex="1">
-          <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h3" sx={{ fontWeight: "bold" }}>
             {data?.name}
           </Typography>
-          <Typography variant="body1" color={theme.palette.text.disabled} gutterBottom>
+          <Typography
+            variant="body1"
+            color={theme.palette.text.disabled}
+            gutterBottom
+          >
             Born: {new Date(data?.birthday).toDateString()} (
-            {new Date().getFullYear() - new Date(data?.birthday).getFullYear()} years old)
+            {new Date().getFullYear() - new Date(data?.birthday).getFullYear()}{" "}
+            years old)
           </Typography>
           <Typography variant="body2" gutterBottom>
-            {data?.biography || 'Sorry, no biography yet...'}
+            {data?.biography || "Sorry, no biography yet..."}
           </Typography>
           <Button
             variant="contained"
@@ -61,7 +66,7 @@ function Actors() {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1.5, my: 4 }}>
+      <Box sx={{ display: "flex", gap: 1.5, my: 4 }}>
         <Box sx={sx.line} />
         <Typography variant="h4">Movies</Typography>
       </Box>

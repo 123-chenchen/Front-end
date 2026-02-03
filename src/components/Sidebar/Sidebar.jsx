@@ -1,19 +1,25 @@
-import { Divider,ListItem, ListItemIcon, ListItemText, ListSubheader, Typography,} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import {
+  Divider,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
-import genreIcons from '../../assets/genres';
-import blueLogo from '../../assets/logo/bluelogo.png';
-import redLogo from '../../assets/logo/redlogo.png';
-import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
-import { useGetGenresQuery } from '../../services/moviesApi';
-import styles from './styles';
+import genreIcons from "../../assets/genres";
+import blueLogo from "../../assets/logo/bluelogo.png";
+import redLogo from "../../assets/logo/redlogo.png";
+import { selectGenreOrCategory } from "../../features/currentGenreOrCategory";
+import { useGetGenresQuery } from "../../services/moviesApi";
+import styles from "./styles";
 
 const categories = [
-  { label: 'Popular', value: 'popular' },
-  { label: 'Top Rated', value: 'top_rated' },
-  { label: 'Upcoming', value: 'upcoming' },
+  { label: "Popular", value: "popular" },
+  { label: "Top Rated", value: "top_rated" },
+  { label: "Upcoming", value: "upcoming" },
 ];
 
 function Sidebar() {
@@ -30,7 +36,7 @@ function Sidebar() {
       ? data
       : [];
 
-  const logo = theme.palette.mode === 'light' ? blueLogo : redLogo;
+  const logo = theme.palette.mode === "light" ? blueLogo : redLogo;
 
   const handlePick = (value) => {
     dispatch(selectGenreOrCategory(value));
@@ -67,21 +73,20 @@ function Sidebar() {
       <ListSubheader>Genres</ListSubheader>
 
       {genres.map((g) => {
-        const name = g?.name ?? '';
+        const name = g?.name ?? "";
         const id = g?.id;
 
-        const iconKey = name.toLowerCase().replace(/\s+/g, '_');
-        const iconSrc = genreIcons[iconKey] ?? genreIcons[name.toLowerCase()] ?? genreIcons.action;
+        const iconKey = name.toLowerCase().replace(/\s+/g, "_");
+        const iconSrc =
+          genreIcons[iconKey] ??
+          genreIcons[name.toLowerCase()] ??
+          genreIcons.action;
 
         return (
           <Link key={id ?? name} style={sx.links} to="/">
             <ListItem button onClick={() => handlePick(id)}>
               <ListItemIcon>
-                <img
-                  src={iconSrc}
-                  style={sx.genreImages}
-                  alt={name}
-                />
+                <img src={iconSrc} style={sx.genreImages} alt={name} />
               </ListItemIcon>
               <ListItemText primary={name} />
             </ListItem>

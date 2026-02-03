@@ -82,13 +82,6 @@ function MovieInfo() {
 
   const [recoMovies, setRecoMovies] = useState([]);
 
-  const posterPath = data?.poster_path ?? data?.posterPath ?? "";
-  const imdbId = data?.imdb_id ?? data?.imdbId ?? "";
-  const releaseDate = data?.release_date ?? data?.releaseDate ?? null;
-  const originalLanguage =
-    data?.original_language ?? data?.originalLanguage ?? "";
-  const runtime = data?.runtime ?? data?.runTime ?? null;
-
   // get tmdb id safely (works with different key names)
   const seedTmdbId = useMemo(() => {
     const raw =

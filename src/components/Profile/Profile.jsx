@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import { ExitToApp } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from "react";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import { useParams } from "react-router-dom";
 
-import RatedCards from '../RatedCards/RatedCards';
-import { useGetListQuery } from '../../services/moviesApi';
-import api from '../../utils/api';
+import RatedCards from "../RatedCards/RatedCards";
+import { useGetListQuery } from "../../services/moviesApi";
+import api from "../../utils/api";
 
 function safeJsonParse(value) {
   try {
@@ -19,7 +18,7 @@ function Profile() {
   const { id } = useParams();
 
   const recomovieUser = useMemo(
-    () => safeJsonParse(localStorage.getItem('recomovie_user')),
+    () => safeJsonParse(localStorage.getItem("recomovie_user")),
     [],
   );
 
@@ -27,7 +26,7 @@ function Profile() {
 
   // For TMDb profile route, go to /tmdb-profile/:id
   const tmdbAccountId = !isRecomovie
-    ? Number(id || localStorage.getItem('tmdb_account_id'))
+    ? Number(id || localStorage.getItem("tmdb_account_id"))
     : null;
 
   // -----------------------------
@@ -41,7 +40,7 @@ function Profile() {
     isError: isTmdbFavoritesError,
     refetch: refetchTmdbFavorites,
   } = useGetListQuery(
-    { listName: 'favorite/movies', accountId: tmdbAccountId, page: 1 },
+    { listName: "favorite/movies", accountId: tmdbAccountId, page: 1 },
     { skip: skipTmdb, refetchOnMountOrArgChange: true },
   );
 
@@ -51,7 +50,7 @@ function Profile() {
     isError: isTmdbWatchlistError,
     refetch: refetchTmdbWatchlist,
   } = useGetListQuery(
-    { listName: 'watchlist/movies', accountId: tmdbAccountId, page: 1 },
+    { listName: "watchlist/movies", accountId: tmdbAccountId, page: 1 },
     { skip: skipTmdb, refetchOnMountOrArgChange: true },
   );
 
@@ -79,8 +78,12 @@ function Profile() {
   // -----------------------------
   // Recomovie lists: /me/movies/...
   // -----------------------------
-  const [recomovieFavoriteMovies, setRecomovieFavoriteMovies] = useState({ results: [] });
-  const [recomovieWatchlistMovies, setRecomovieWatchlistMovies] = useState({ results: [] });
+  const [recomovieFavoriteMovies, setRecomovieFavoriteMovies] = useState({
+    results: [],
+  });
+  const [recomovieWatchlistMovies, setRecomovieWatchlistMovies] = useState({
+    results: [],
+  });
   const [isFetchingRecomovie, setIsFetchingRecomovie] = useState(false);
 
   useEffect(() => {
@@ -90,14 +93,17 @@ function Profile() {
       try {
         setIsFetchingRecomovie(true);
         const [favRes, watchRes] = await Promise.all([
-          api.get('/me/movies/favorites'),
-          api.get('/me/movies/watchlist'),
+          api.get("/me/movies/favorites"),
+          api.get("/me/movies/watchlist"),
         ]);
 
         setRecomovieFavoriteMovies({ results: favRes.data || [] });
         setRecomovieWatchlistMovies({ results: watchRes.data || [] });
       } catch (err) {
-        console.error('Failed to load personal lists:', err.response?.data ?? err.message);
+        console.error(
+          "Failed to load personal lists:",
+          err.response?.data ?? err.message,
+        );
         setRecomovieFavoriteMovies({ results: [] });
         setRecomovieWatchlistMovies({ results: [] });
       } finally {
@@ -113,23 +119,27 @@ function Profile() {
   // -----------------------------
   const logout = () => {
     if (isRecomovie) {
-      localStorage.removeItem('recomovie_token');
-      localStorage.removeItem('recomovie_user');
-      window.location.href = '/';
+      localStorage.removeItem("recomovie_token");
+      localStorage.removeItem("recomovie_user");
+      window.location.href = "/";
       return;
     }
 
-    localStorage.removeItem('request_token');
-    localStorage.removeItem('session_id');
-    localStorage.removeItem('tmdb_account_id');
-    window.location.href = '/';
+    localStorage.removeItem("request_token");
+    localStorage.removeItem("session_id");
+    localStorage.removeItem("tmdb_account_id");
+    window.location.href = "/";
   };
 
   // -----------------------------
   // Pick active lists for UI
   // -----------------------------
-  const favoriteMovies = isRecomovie ? recomovieFavoriteMovies : tmdbFavoriteMovies;
-  const watchlistMovies = isRecomovie ? recomovieWatchlistMovies : tmdbWatchlistMovies;
+  const favoriteMovies = isRecomovie
+    ? recomovieFavoriteMovies
+    : tmdbFavoriteMovies;
+  const watchlistMovies = isRecomovie
+    ? recomovieWatchlistMovies
+    : tmdbWatchlistMovies;
 
   // Not logged in states
   if (isRecomovie && !recomovieUser) {
@@ -149,18 +159,15 @@ function Profile() {
   }
 
   const isLoading = isRecomovie ? isFetchingRecomovie : isFetchingTmdbList;
-  const hasNoLists = !favoriteMovies?.results?.length && !watchlistMovies?.results?.length;
+  const hasNoLists =
+    !favoriteMovies?.results?.length && !watchlistMovies?.results?.length;
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box display="flex" justifyContent="space-between">
         <Typography variant="h4" gutterBottom>
           My Profile
         </Typography>
-
-        <Button color="inherit" onClick={logout}>
-          Logout &nbsp; <ExitToApp />
-        </Button>
       </Box>
 
       {!isRecomovie && isTmdbListError && (
@@ -170,7 +177,9 @@ function Profile() {
       )}
 
       {isLoading ? (
-        <Typography variant="h6">Loading...</Typography>
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
       ) : hasNoLists ? (
         <Typography variant="h5">
           Add favourite or watchlist movies to see them here!
